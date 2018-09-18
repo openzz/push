@@ -16,13 +16,13 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile fileTree(include: '*.jar', dir: 'libs')
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.5'
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.5'
 }
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '27.0.3'
 
     sourceSets {
         main {

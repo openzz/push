@@ -1,2 +1,0 @@
-com.microsoft.azure.android.test
-int string dummyString 0x7f010000
