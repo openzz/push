@@ -1,0 +1,2 @@
+com.microsoft.azure.android
+int string dummyString 0x7f150001
