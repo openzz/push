@@ -7,6 +7,7 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -68,11 +69,16 @@ public class MainList extends ListFragment implements OnClickListener {
                 }
 
                 for(DeviceObject dev: deviceList){
+
+                    CheckDevices checkDevices = new CheckDevices();
+                    checkDevices.execute(dev);
+                    onlineDevices = checkDevices.get();
+                    /*
                     DeviceTwin twinClient = DeviceTwin.createFromConnectionString(dev.getIotHubConnectionString());
                     DeviceTwinDevice device = new DeviceTwinDevice(dev.getDeviceName());
 
                     SqlQuery myQuery = SqlQuery.createSqlQuery("*", SqlQuery.FromType.DEVICES, "connectionState='Connected'", null);
-                    Query twinQuery = twinClient.queryTwin(myQuery.getQuery(), 500);
+                    //Query twinQuery = twinClient.queryTwin(myQuery.getQuery(), 500);
                     while (twinClient.hasNextDeviceTwin(twinQuery)){
                         DeviceTwinDevice d = twinClient.getNextDeviceTwin(twinQuery);
                         for (String arrEl: onlineDevices){
@@ -81,6 +87,7 @@ public class MainList extends ListFragment implements OnClickListener {
                             }
                         }
                     }
+                    */
                 }
 
                 for (DeviceObject d: deviceList){
@@ -239,4 +246,6 @@ public class MainList extends ListFragment implements OnClickListener {
         intent.putExtra("index", position);
         startActivityForResult(intent,0);
     }
+
+
 }
