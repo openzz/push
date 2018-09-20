@@ -94,14 +94,13 @@ public class MainList extends ListFragment implements OnClickListener {
                     listToShow.add(d.getNotificationHubName());
                 }
 
-
-
 /*
                 for(String el: gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class).devices){
                     Map <String,String> map = parser.parseQr(el);
                     deviceList.put("NotHubName", map.get("NotificationHubName"));
                 }
 */
+
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
                 setListAdapter(adapter);
 
