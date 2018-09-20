@@ -7,13 +7,10 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -22,16 +19,14 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.microsoft.azure.sdk.iot.service.devicetwin.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.gson.*;
-
 import static android.app.Activity.RESULT_OK;
 
 public class MainList extends ListFragment implements OnClickListener {
@@ -43,10 +38,39 @@ public class MainList extends ListFragment implements OnClickListener {
     private SharedPreferences mSettings;
 
     ArrayList<String> onlineDevices;
-    ArrayList<String> listToShow;
+    ArrayList<String> listToShow = new ArrayList<String>();
 
 
     MyParser parser = new MyParser();
+
+    public class MyArrayAdapter extends ArrayAdapter<String> {
+        private final Context context;
+        private final String[] values;
+
+        public MyArrayAdapter(Context context, String[] values) {
+            super(context, -1, values);
+            this.context = context;
+            this.values = values;
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            TextView textView = (TextView) rowView.findViewById(R.id.name);
+            textView.setText(values[position]);
+            // change the icon for Windows and iPhone
+            String s = values[position];
+            if (s.startsWith("Android")) {
+                textView.setTextColor(256);
+            } else {
+
+            }
+            return rowView;
+        }
+    }
 
 
     public void showList(){
@@ -100,12 +124,15 @@ public class MainList extends ListFragment implements OnClickListener {
                     deviceList.put("NotHubName", map.get("NotificationHubName"));
                 }
 */
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
+                String[] arrayToShow = listToShow.toArray(new String[0]);
+                MyArrayAdapter adapter = new MyArrayAdapter(getActivity(), arrayToShow);
+                //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
                 setListAdapter(adapter);
 
             }else {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
+                String[] arrayToShow = listToShow.toArray(new String[0]);
+                MyArrayAdapter adapter = new MyArrayAdapter(getActivity(), arrayToShow);
+                //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
                 setListAdapter(adapter);
             }
         }catch (Exception e){
