@@ -176,14 +176,14 @@ public class MainList extends ListFragment implements OnClickListener {
     }
 
     public void showList(ArrayList<DeviceObject> deviceList){
-/*
+
         for(DeviceObject dev: deviceList){
 
             CheckDevices checkDevices = new CheckDevices();
             checkDevices.execute(dev);
             onlineDevices = checkDevices.get();
         }
-*/
+
         ArrayList<MyMainListItem> arrayToShow = new ArrayList<>();
 
         for(DeviceObject device: deviceList) {
