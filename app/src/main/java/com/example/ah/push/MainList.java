@@ -31,115 +31,15 @@ import static android.app.Activity.RESULT_OK;
 
 public class MainList extends ListFragment implements OnClickListener {
 
-    String connStr;
+    String stringFromFile;
     private static final int STRING_CAPTURE = 12;
-    Map <String, String> devices = new HashMap<String, String>();
     public static final String APP_PREFERENCES = "mysettings";
     private SharedPreferences mSettings;
 
     ArrayList<String> onlineDevices;
-    ArrayList<String> listToShow = new ArrayList<String>();
-
+    ArrayList<DeviceObject> devices = new ArrayList<>();
 
     MyParser parser = new MyParser();
-
-    public class MyArrayAdapter extends ArrayAdapter<String> {
-        private final Context context;
-        private final String[] values;
-
-        public MyArrayAdapter(Context context, String[] values) {
-            super(context, -1, values);
-            this.context = context;
-            this.values = values;
-        }
-
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
-            TextView textView = (TextView) rowView.findViewById(R.id.name);
-            textView.setText(values[position]);
-            // change the icon for Windows and iPhone
-            String s = values[position];
-            if (s.startsWith("Android")) {
-                textView.setTextColor(256);
-            } else {
-
-            }
-            return rowView;
-        }
-    }
-
-
-    public void showList(){
-        //HashMap<String, String> deviceList = new HashMap<String, String>();
-
-        ArrayList<DeviceObject> deviceList = new ArrayList<DeviceObject>();
-
-        try {
-            if (mSettings.getAll() != null) {
-                GsonBuilder builder = new GsonBuilder();
-                Gson gson = builder.create();
-
-                for(String el: gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class).devices){
-                    Map <String,String> map = parser.parseQrWithIotHub(el);
-
-                    DeviceObject device = new DeviceObject(map.get("NotificationHubName"), map.get("SenderId"), map.get("NotHubConnectionString"),
-                            map.get("TableName"), map.get("StorageConnectionString"), map.get("IotHubConnectionString"), map.get("DeviceName"));
-
-                    deviceList.add(device);
-                }
-
-                for(DeviceObject dev: deviceList){
-
-                    CheckDevices checkDevices = new CheckDevices();
-                    checkDevices.execute(dev);
-                    onlineDevices = checkDevices.get();
-                    /*
-                    DeviceTwin twinClient = DeviceTwin.createFromConnectionString(dev.getIotHubConnectionString());
-                    DeviceTwinDevice device = new DeviceTwinDevice(dev.getDeviceName());
-
-                    SqlQuery myQuery = SqlQuery.createSqlQuery("*", SqlQuery.FromType.DEVICES, "connectionState='Connected'", null);
-                    //Query twinQuery = twinClient.queryTwin(myQuery.getQuery(), 500);
-                    while (twinClient.hasNextDeviceTwin(twinQuery)){
-                        DeviceTwinDevice d = twinClient.getNextDeviceTwin(twinQuery);
-                        for (String arrEl: onlineDevices){
-                            if(!arrEl.equals(dev.getDeviceName())){
-                                onlineDevices.add(dev.getDeviceName());
-                            }
-                        }
-                    }
-                    */
-                }
-
-                for (DeviceObject d: deviceList){
-                    listToShow.add(d.getNotificationHubName());
-                }
-
-/*
-                for(String el: gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class).devices){
-                    Map <String,String> map = parser.parseQr(el);
-                    deviceList.put("NotHubName", map.get("NotificationHubName"));
-                }
-*/
-                String[] arrayToShow = listToShow.toArray(new String[0]);
-                MyArrayAdapter adapter = new MyArrayAdapter(getActivity(), arrayToShow);
-                //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
-                setListAdapter(adapter);
-
-            }else {
-                String[] arrayToShow = listToShow.toArray(new String[0]);
-                MyArrayAdapter adapter = new MyArrayAdapter(getActivity(), arrayToShow);
-                //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, listToShow);
-                setListAdapter(adapter);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -153,24 +53,9 @@ public class MainList extends ListFragment implements OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        mSettings = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
-        //SharedPreferences.Editor editor = mSettings.edit();
-        //editor.clear();
-        //editor.apply();
-
-
-        if (mSettings.contains(APP_PREFERENCES)) {
-            // Получаем число из настроек
-            connStr = mSettings.getString(APP_PREFERENCES, connStr);
-            Map<String, String> deviceInfo = parser.parseQr(connStr);
-            Map<String, ?> deviceList = mSettings.getAll();
-            for (Map.Entry<String, ?> el: deviceList.entrySet()){
-                Map<String, String> tempInfo = parser.parseQr((String)el.getValue());
-                devices.put(tempInfo.get("NotificationHubName"), "Name");
-            }
-        }
-        showList();
+        updateList();
+        showList(devices);
     }
 
     @Override
@@ -187,21 +72,21 @@ public class MainList extends ListFragment implements OnClickListener {
         try {
             if (requestCode == STRING_CAPTURE) {
                 if (resultCode == CommonStatusCodes.SUCCESS) {
-                    connStr = data.getStringExtra("ConnectionString");
+                    stringFromFile = data.getStringExtra("ConnectionString");
 
                     GsonBuilder builder = new GsonBuilder();
                     Gson gson = builder.create();
                     DeviceListFormatter dlf = new DeviceListFormatter();
                     dlf.devices = new ArrayList<String>();
                     try {
-                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class);
+                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
                     }catch (Exception e){
                         e.printStackTrace();
                     }
 
                     //DeviceListFormatter dlf = new DeviceListFormatter();
-                    if(!dlf.devices.contains(connStr)){
-                        dlf.devices.add(connStr);
+                    if(!dlf.devices.contains(stringFromFile)){
+                        dlf.devices.add(stringFromFile);
                     }else{
 
                     }
@@ -227,7 +112,7 @@ public class MainList extends ListFragment implements OnClickListener {
                     DeviceListFormatter dlf = new DeviceListFormatter();
                     dlf.devices = new ArrayList<String>();
                     try {
-                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class);
+                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
                         dlf.devices.remove(indexToDelete);
                     }catch (Exception e){
                         e.printStackTrace();
@@ -249,9 +134,8 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        showList();
+        showList(devices);
     }
-
 
     @Override
     public void onListItemClick(ListView list, View v, int position, long id) {
@@ -260,7 +144,7 @@ public class MainList extends ListFragment implements OnClickListener {
         DeviceListFormatter dlf = new DeviceListFormatter();
         dlf.devices = new ArrayList<String>();
         try {
-            dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, connStr), DeviceListFormatter.class);
+            dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -273,5 +157,41 @@ public class MainList extends ListFragment implements OnClickListener {
         startActivityForResult(intent,0);
     }
 
+    public void updateList(){
+        mSettings = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        if (mSettings.contains(APP_PREFERENCES)) {
+            // Get connStrings from the file
+            stringFromFile = mSettings.getString(APP_PREFERENCES, stringFromFile);
+            Map<String, ?> deviceList = mSettings.getAll();
+            for (Map.Entry<String, ?> el: deviceList.entrySet()){
+                Map<String, String> tempInfo = parser.parseQrWithIotHub((String)el.getValue());
+                devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
+                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+            }
+        }
+    }
+
+    public void checkDevicesConnection(){
+
+    }
+
+    public void showList(ArrayList<DeviceObject> deviceList){
+/*
+        for(DeviceObject dev: deviceList){
+
+            CheckDevices checkDevices = new CheckDevices();
+            checkDevices.execute(dev);
+            onlineDevices = checkDevices.get();
+        }
+*/
+        ArrayList<MyMainListItem> arrayToShow = new ArrayList<>();
+
+        for(DeviceObject device: deviceList) {
+            arrayToShow.add(new MyMainListItem(R.drawable.green, device.DeviceName));
+        }
+
+        MyIndicatorAdapter adapter = new MyIndicatorAdapter(getActivity(), arrayToShow);
+        setListAdapter(adapter);
+    }
 
 }
