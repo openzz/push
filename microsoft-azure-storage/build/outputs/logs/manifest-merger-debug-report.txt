@@ -1,33 +1,33 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
+ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:1-18:12
 	package
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:12:5-42
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:12:5-42
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
 	android:versionName
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:5-32
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:5-32
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
 	xmlns:android
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:11:11-69
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:11:11-69
 	android:versionCode
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:13:5-28
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:13:5-28
 uses-sdk
-ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
-INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
+ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
+INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
 	android:targetSdkVersion
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:48-77
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:48-77
 	android:minSdkVersion
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
-		INJECTED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:14:38-80
+		INJECTED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml
 uses-permission#android.permission.INTERNET
-ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:16:5-67
+ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:16:5-67
 	android:name
-		ADDED from D:\Projects\push\push\microsoft-azure-storage\AndroidManifest.xml:16:22-64
+		ADDED from C:\Users\AH.PDMTECH\Documents\Tests\push\push\microsoft-azure-storage\AndroidManifest.xml:16:22-64

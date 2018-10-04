@@ -16,12 +16,12 @@ import java.util.List;
 
 public class MyIndicatorAdapter extends ArrayAdapter<MyMainListItem>{
     private Context mContext;
-    private List<MyMainListItem> moviesList = new ArrayList<>();
+    private List<MyMainListItem> deviceList = new ArrayList<>();
 
     public MyIndicatorAdapter(@NonNull Context context, @LayoutRes ArrayList<MyMainListItem> list) {
         super(context, 0 , list);
         mContext = context;
-        moviesList = list;
+        deviceList = list;
     }
 
     @NonNull
@@ -29,15 +29,15 @@ public class MyIndicatorAdapter extends ArrayAdapter<MyMainListItem>{
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if(listItem == null)
-            listItem = LayoutInflater.from(mContext).inflate(R.layout.list_item,parent,false);
+            listItem = LayoutInflater.from(mContext).inflate(R.layout.my_listitem,parent,false);
 
-        MyMainListItem currentMovie = moviesList.get(position);
+        MyMainListItem currentDevice = deviceList.get(position);
 
         ImageView image = (ImageView)listItem.findViewById(R.id.imageView_poster);
-        image.setImageResource(currentMovie.getmImageDrawable());
+        image.setImageResource(currentDevice.getmImageDrawable());
 
         TextView name = (TextView) listItem.findViewById(R.id.textView_name);
-        name.setText(currentMovie.getmName());
+        name.setText(currentDevice.getmName());
 
         return listItem;
     }

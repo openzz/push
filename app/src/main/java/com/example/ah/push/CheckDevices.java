@@ -45,15 +45,10 @@ public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String
 
             while (twinClient.hasNextDeviceTwin(twinQuery)) {
                 DeviceTwinDevice d = twinClient.getNextDeviceTwin(twinQuery);
-                if(!onlineDevices.isEmpty()) {
-                    for (String arrEl : onlineDevices) {
-                        if (!arrEl.equals(devices[0].getDeviceName())) {
-                            onlineDevices.add(devices[0].getDeviceName());
-                        }
+
+                    if (!onlineDevices.contains(d.getDeviceId())) {
+                        onlineDevices.add(d.getDeviceId());
                     }
-                }else{
-                    onlineDevices.add(devices[0].getDeviceName());
-                }
             }
 
         } catch (IOException e) {

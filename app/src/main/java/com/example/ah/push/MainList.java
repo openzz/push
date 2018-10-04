@@ -54,6 +54,7 @@ public class MainList extends ListFragment implements OnClickListener {
         super.onActivityCreated(savedInstanceState);
 
         updateList();
+        checkDevicesConnection(devices);
         showList(devices);
     }
 
@@ -72,23 +73,29 @@ public class MainList extends ListFragment implements OnClickListener {
         try {
             if (requestCode == STRING_CAPTURE) {
                 if (resultCode == CommonStatusCodes.SUCCESS) {
-                    stringFromFile = data.getStringExtra("ConnectionString");
+                    String stringFromQr = data.getStringExtra("ConnectionString");
 
                     GsonBuilder builder = new GsonBuilder();
                     Gson gson = builder.create();
-                    DeviceListFormatter dlf = new DeviceListFormatter();
-                    dlf.devices = new ArrayList<String>();
+                    DeviceListFormatter dlf = new DeviceListFormatter();;
                     try {
                         dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
                     }catch (Exception e){
                         e.printStackTrace();
                     }
 
-                    //DeviceListFormatter dlf = new DeviceListFormatter();
-                    if(!dlf.devices.contains(stringFromFile)){
-                        dlf.devices.add(stringFromFile);
-                    }else{
+                    if(dlf == null){
+                        dlf = new DeviceListFormatter();
+                        dlf.devices = new ArrayList<String>();
+                    }
 
+                    //DeviceListFormatter dlf = new DeviceListFormatter();
+                    if(!dlf.devices.contains(stringFromQr)){
+                        dlf.devices.add(stringFromQr);
+                    }else{
+                        //if (MainActivity.isVisible) {
+                            MainActivity.mainActivity.ToastNotify("Already in list.");
+                        //}
                     }
 
 
@@ -134,6 +141,8 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
+        updateList();
+        checkDevicesConnection(devices);
         showList(devices);
     }
 
@@ -158,13 +167,18 @@ public class MainList extends ListFragment implements OnClickListener {
     }
 
     public void updateList(){
+        JsonParser jParser = new JsonParser();
+        devices.clear();
+        //get file with MySettings
         mSettings = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         if (mSettings.contains(APP_PREFERENCES)) {
             // Get connStrings from the file
             stringFromFile = mSettings.getString(APP_PREFERENCES, stringFromFile);
-            Map<String, ?> deviceList = mSettings.getAll();
-            for (Map.Entry<String, ?> el: deviceList.entrySet()){
-                Map<String, String> tempInfo = parser.parseQrWithIotHub((String)el.getValue());
+            //convert plainJson to jsonObject
+
+            JsonObject formStringJson = (JsonObject) jParser.parse(stringFromFile);
+            for (JsonElement el: formStringJson.getAsJsonArray("devices")){
+                Map<String, String> tempInfo = parser.parseQrWithIotHub(el.toString());
                 devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
                         tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
             }
@@ -181,17 +195,31 @@ public class MainList extends ListFragment implements OnClickListener {
                 e.printStackTrace();
             }
         }
+        for (DeviceObject device: deviceList){
+            if(onlineDevices.contains(device.DeviceName)){  //TODO bad parser
+                device.setIsOnline(true);
+            }else{
+                device.setIsOnline(false);
+            }
+        }
     }
+
 
     public void showList(ArrayList<DeviceObject> deviceList){
 
         ArrayList<MyMainListItem> arrayToShow = new ArrayList<>();
 
+        MyIndicatorAdapter adapter = new MyIndicatorAdapter(getActivity(), arrayToShow);
         for(DeviceObject device: deviceList) {
-            arrayToShow.add(new MyMainListItem(R.drawable.green, device.DeviceName));
+            if(device.IsOnline){
+                arrayToShow.add(new MyMainListItem(R.drawable.green, device.DeviceName));
+            }else{
+                arrayToShow.add(new MyMainListItem(R.drawable.grey, device.DeviceName));
+            }
+
         }
 
-        MyIndicatorAdapter adapter = new MyIndicatorAdapter(getActivity(), arrayToShow);
+
         setListAdapter(adapter);
     }
 
