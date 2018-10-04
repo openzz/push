@@ -45,6 +45,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-vision:15.0.2'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.google.code.gson:gson:2.8.2'
+
     //GrephView
     implementation 'com.jjoe64:graphview:4.2.2'
     implementation project(':microsoft-azure-storage')

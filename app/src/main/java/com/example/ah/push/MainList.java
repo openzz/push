@@ -16,7 +16,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.microsoft.azure.sdk.iot.service.devicetwin.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +64,7 @@ public class MainList extends ListFragment implements OnClickListener {
             startActivityForResult(intent, STRING_CAPTURE);
         }
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -171,18 +171,19 @@ public class MainList extends ListFragment implements OnClickListener {
         }
     }
 
-    public void checkDevicesConnection(){
-
+    public void checkDevicesConnection(ArrayList<DeviceObject> deviceList){
+        for(DeviceObject dev: deviceList){
+            try{
+                CheckDevices checkDevices = new CheckDevices();
+                checkDevices.execute(dev);
+                onlineDevices = checkDevices.get();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     public void showList(ArrayList<DeviceObject> deviceList){
-
-        for(DeviceObject dev: deviceList){
-
-            CheckDevices checkDevices = new CheckDevices();
-            checkDevices.execute(dev);
-            onlineDevices = checkDevices.get();
-        }
 
         ArrayList<MyMainListItem> arrayToShow = new ArrayList<>();
 
