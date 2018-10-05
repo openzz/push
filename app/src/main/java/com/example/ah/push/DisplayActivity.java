@@ -246,17 +246,27 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                 String fromString = fromDate.getText().toString();
                 String toString = toDate.getText().toString();
 
-                SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM yyyy");
-
                 Date dateFrom = null;
                 Date dateTo = null;
 
+                SimpleDateFormat formatter = new SimpleDateFormat();
+
                 try {
+                    formatter.applyPattern("dd MMMM yyyy");
                     dateFrom = formatter.parse(fromString);
                     dateTo = formatter.parse(toString);
-                }catch (ParseException e){
+                }catch (Exception e){
                     e.printStackTrace();
                 }
+
+                try {
+                    formatter.applyPattern("MMMM dd, yyyy");
+                    dateFrom = formatter.parse(fromString);
+                    dateTo = formatter.parse(toString);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
 
                 formatter.applyPattern("dd-MM-yyyy HH:mm:ss,SSS");
                 fromString = formatter.format(dateFrom);
