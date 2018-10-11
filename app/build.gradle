@@ -9,7 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        //multiDexEnabled true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -38,26 +38,26 @@ dependencies {
     implementation 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
     implementation 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
     implementation 'com.google.firebase:firebase-core:16.0.4'
-    implementation 'com.microsoft.azure.sdk.iot:iot-device-client:1.10.0'
     implementation 'org.slf4j:slf4j-api:1.7.25'
     implementation 'org.apache.qpid:proton-j:0.29.0'
     implementation 'log4j:log4j:1.2.17'
     implementation 'com.google.android.gms:play-services-vision:16.2.0'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.google.code.gson:gson:2.8.2'
-
     //GraphView
     implementation 'com.jjoe64:graphview:4.2.2'
-    //implementation 'com.microsoft.azure.android:azure-storage-android:2.0.0@aar'
-    implementation group: 'com.twofortyfouram', name: 'android-annotation', version: '3.0.0'
+    implementation 'com.twofortyfouram:android-annotation:3.0.0'
+    implementation group: 'com.microsoft.azure.android', name: 'azure-storage-android', version: '2.0.0'
 
-}
 
-repositories {
-    mavenCentral()
-    maven {
-        url "http://dl.bintray.com/microsoftazuremobile/SDK"
+    repositories {
+        mavenCentral()
+        maven {
+            url "http://dl.bintray.com/microsoftazuremobile/SDK"
+        }
+    }
+    apply plugin: 'com.google.gms.google-services'
+    implementation 'com.microsoft.azure.sdk.iot:iot-device-client:1.14.0'{
+        exclude module: 'storage'
     }
 }
-
-apply plugin: 'com.google.gms.google-services'

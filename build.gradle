@@ -29,4 +29,4 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-configurations.all {exclude group: 'com.android.support', module: 'support-v13'}
+configurations.all {exclude group: 'com.android.support', module: 'support-v13' }
