@@ -61,6 +61,11 @@
             android:label="Detail">
         </activity>
 
+        <activity
+            android:name=".AuthenticationActivity"
+            android:label="Authentication">
+        </activity>
+
         //hold until will be fixed (google issue)
         //Failed resolution of: [Lorg/apache/http/Header
         <uses-library android:name="org.apache.http.legacy" android:required="false" />

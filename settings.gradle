@@ -1,1 +1,1 @@
-include ':app', ':androidazurestorage'
+include ':app'

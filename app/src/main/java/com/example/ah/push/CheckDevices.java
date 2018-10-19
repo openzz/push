@@ -13,25 +13,16 @@ import com.microsoft.azure.sdk.iot.service.devicetwin.DeviceTwinDevice;
 import com.microsoft.azure.sdk.iot.service.devicetwin.Query;
 import com.microsoft.azure.sdk.iot.service.devicetwin.SqlQuery;
 import com.microsoft.azure.sdk.iot.service.exceptions.IotHubException;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.table.CloudTable;
-import com.microsoft.azure.storage.table.CloudTableClient;
-import com.microsoft.azure.storage.table.EntityProperty;
-import com.microsoft.azure.storage.table.EntityResolver;
-import com.microsoft.azure.storage.table.TableQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String>> {
 
     public ArrayList<String> onlineDevices = new ArrayList<>();
-    DeviceTwin twinClient;
-    Query twinQuery;
+    private DeviceTwin twinClient;
+    private Query twinQuery;
 
     @Override
     protected ArrayList<String> doInBackground(DeviceObject... devices) {
