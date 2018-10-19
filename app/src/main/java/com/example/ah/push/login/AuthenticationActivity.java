@@ -34,6 +34,8 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
     private FirebaseAuth.AuthStateListener mAuthListener;
     // [END declare_auth_listener]
 
+    private DatabaseReference mDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +107,10 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
         hideProgressDialog();
         if (user != null) {
             mStatusTextView.setText(getString(R.string.emailpassword_status_fmt, user.getEmail()));
+            //mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
+
+
+
             mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
             findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
