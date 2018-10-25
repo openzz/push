@@ -51,16 +51,17 @@ dependencies {
     implementation 'com.microsoft.azure.android:azure-storage-android:2.0.0'
     implementation 'com.microsoft.azure.sdk.iot:iot-service-client:1.15.1'
 
+    //Firebase
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-auth:16.0.5'
+    implementation 'com.google.firebase:firebase-database:16.0.3'
+
     repositories {
+        google()
         mavenCentral()
         maven {
             url "http://dl.bintray.com/microsoftazuremobile/SDK"
         }
     }
     apply plugin: 'com.google.gms.google-services'
-
-    //Firebase
-    implementation 'com.google.firebase:firebase-core:16.0.4'
-    implementation 'com.google.firebase:firebase-auth:16.0.5'
-    implementation 'com.google.firebase:firebase-database:16.0.3'
 }

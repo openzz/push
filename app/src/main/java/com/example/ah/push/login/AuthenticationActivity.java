@@ -9,12 +9,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ah.push.FirebaseOperations;
 import com.example.ah.push.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.ArrayList;
 
 
 public class AuthenticationActivity extends BaseActivity implements View.OnClickListener {
@@ -34,13 +37,13 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
     private FirebaseAuth.AuthStateListener mAuthListener;
     // [END declare_auth_listener]
 
-    private DatabaseReference mDatabase;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
+
+
 
         // Views
         mStatusTextView = (TextView) findViewById(R.id.status);
@@ -76,6 +79,7 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
         };
     // [END auth_state_listener]
     }
+
 
     @Override
     protected void onStart() {

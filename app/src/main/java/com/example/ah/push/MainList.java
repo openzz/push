@@ -40,6 +40,8 @@ public class MainList extends ListFragment implements OnClickListener {
 
     MyParser parser = new MyParser();
 
+    FirebaseOperations FBOpers = new FirebaseOperations();
+
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment, container, false);
@@ -53,7 +55,7 @@ public class MainList extends ListFragment implements OnClickListener {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        updateList();
+        updateListFromFirebase();
         checkDevicesConnection(devices);
         showList(devices);
     }
@@ -141,7 +143,7 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        updateList();
+        updateListFromFirebase();
         checkDevicesConnection(devices);
         showList(devices);
     }
@@ -183,6 +185,20 @@ public class MainList extends ListFragment implements OnClickListener {
                         tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
             }
         }
+    }
+
+    public void updateListFromFirebase(){
+
+        ArrayList<String> devicesFromFirebase = new ArrayList<>();
+        devicesFromFirebase = FBOpers.getDevices(FBOpers.getDatabaseReference().child("devices"));
+        devices.clear();
+        //get file with MySettings
+
+            for (String el: devicesFromFirebase){
+                Map<String, String> tempInfo = parser.parseQrWithIotHub(el);
+                devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
+                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+            }
     }
 
     public void checkDevicesConnection(ArrayList<DeviceObject> deviceList){
