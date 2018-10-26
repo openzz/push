@@ -30,16 +30,22 @@ public class FirebaseOperations extends BaseActivity {
         return dbRef.child(childName);
     }
 
-    public ArrayList<String> getDevices(DatabaseReference dbRef){
+    public ArrayList<String> saveFromFirebaseTest(ArrayList<String> input){
+        ArrayList<String> test_list = new ArrayList<>();
+        test_list = input;
+        return test_list;
+    }
 
-        //showProgressDialog();
+    public void getDevices(DatabaseReference dbRef){
 
         ArrayList<String> my_list = new ArrayList<>();
-        ValueEventListener eventListener = new ValueEventListener() {
+
+        dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v("Async101", "Done loading bookmarks");
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String connStr = ds.getValue().toString();
+                    String connStr = ds.getKey();
                     my_list.add(connStr);
                     Log.d("TAG", connStr);
                 }
@@ -49,11 +55,6 @@ public class FirebaseOperations extends BaseActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        };
-        dbRef.addListenerForSingleValueEvent(eventListener);
-
-        //hideProgressDialog();
-
-        return my_list;
+        });
     }
 }

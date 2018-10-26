@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.*;
 import static android.app.Activity.RESULT_OK;
 
@@ -190,7 +191,7 @@ public class MainList extends ListFragment implements OnClickListener {
     public void updateListFromFirebase(){
 
         ArrayList<String> devicesFromFirebase = new ArrayList<>();
-        devicesFromFirebase = FBOpers.getDevices(FBOpers.getDatabaseReference().child("devices"));
+        devicesFromFirebase = FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         devices.clear();
         //get file with MySettings
 
