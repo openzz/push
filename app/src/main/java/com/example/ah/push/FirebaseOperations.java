@@ -21,6 +21,8 @@ import java.util.List;
 public class FirebaseOperations extends BaseActivity {
     private DatabaseReference mDatabase;
 
+    //MainList mainList = new MainList();
+
 
     public DatabaseReference getDatabaseReference (){
         return FirebaseDatabase.getInstance().getReference();
@@ -49,6 +51,7 @@ public class FirebaseOperations extends BaseActivity {
                     my_list.add(connStr);
                     Log.d("TAG", connStr);
                 }
+                //mainList.updateListFromFirebase(my_list);
             }
 
             @Override

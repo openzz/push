@@ -56,7 +56,8 @@ public class MainList extends ListFragment implements OnClickListener {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        updateListFromFirebase();
+        //updateListFromFirebase();
+        //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         checkDevicesConnection(devices);
         showList(devices);
     }
@@ -144,7 +145,8 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        updateListFromFirebase();
+        //updateListFromFirebase();
+        //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         checkDevicesConnection(devices);
         showList(devices);
     }
@@ -188,10 +190,11 @@ public class MainList extends ListFragment implements OnClickListener {
         }
     }
 
-    public void updateListFromFirebase(){
+    public void updateListFromFirebase(ArrayList<String> devicesFromFB){
 
         ArrayList<String> devicesFromFirebase = new ArrayList<>();
-        devicesFromFirebase = FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
+        devicesFromFirebase = devicesFromFB;
+        //devicesFromFirebase = FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         devices.clear();
         //get file with MySettings
 

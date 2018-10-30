@@ -1,5 +1,6 @@
 package com.example.ah.push.login;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ah.push.FirebaseOperations;
+import com.example.ah.push.MainActivity;
 import com.example.ah.push.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -197,6 +199,8 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+                        Intent goToMain = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(goToMain);
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
