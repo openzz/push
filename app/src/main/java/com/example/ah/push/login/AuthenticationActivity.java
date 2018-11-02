@@ -18,8 +18,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.util.ArrayList;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class AuthenticationActivity extends BaseActivity implements View.OnClickListener {
@@ -39,13 +39,15 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
     private FirebaseAuth.AuthStateListener mAuthListener;
     // [END declare_auth_listener]
 
+    private  FirebaseOperations fbOps = new FirebaseOperations();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-
+        Intent goToMain = new Intent(getApplicationContext(), MainActivity.class);
 
         // Views
         mStatusTextView = (TextView) findViewById(R.id.status);
@@ -68,8 +70,10 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    // User is signed in
+
+                    startActivity(goToMain);
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -199,8 +203,6 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                        Intent goToMain = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(goToMain);
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the

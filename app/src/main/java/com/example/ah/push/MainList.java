@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +27,17 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.*;
 import static android.app.Activity.RESULT_OK;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainList extends ListFragment implements OnClickListener {
 
@@ -42,6 +52,7 @@ public class MainList extends ListFragment implements OnClickListener {
     MyParser parser = new MyParser();
 
     FirebaseOperations FBOpers = new FirebaseOperations();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -51,15 +62,16 @@ public class MainList extends ListFragment implements OnClickListener {
         return v;
     }
 
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        //updateListFromFirebase();
-        //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
-        checkDevicesConnection(devices);
-        showList(devices);
+        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("devices"));
+
+        String connStr = "AnotherNotHub%823910043359%Endpoint=sb://namespaceforanotherhub.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=sM1ehJRmCynrWKBEp2bzFsK0SirGvsZU/wBi+m3psB0=%AnotherTable%DefaultEndpointsProtocol=http;AccountName=arduappba0e;AccountKey=p+en8MZCfLJ4ATCn25CGp8IbNUZy/UfsHBWlT5YKU9dyCHZhq02WUWcNxIidlYjZWrU1UmtJUn5g2+ya3n3Ewg==;%HostName=AHHub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=HLW6hFlQrEf9uOlu/Yr7+xOrBJYZx0AM/aP1ECxdYqc=%Hello_Andrew!";
+        //FBOpers.addDeviceToDb(FirebaseDatabase.getInstance(), user, connStr);
+        //FBOpers.removeDeviceFromDb(FirebaseDatabase.getInstance(), user, connStr);
+
     }
 
     @Override
@@ -69,7 +81,6 @@ public class MainList extends ListFragment implements OnClickListener {
             startActivityForResult(intent, STRING_CAPTURE);
         }
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -94,6 +105,8 @@ public class MainList extends ListFragment implements OnClickListener {
                     }
 
                     //DeviceListFormatter dlf = new DeviceListFormatter();
+                    //TODO
+                    //DeviceObject tempDevice =
                     if(!dlf.devices.contains(stringFromQr)){
                         dlf.devices.add(stringFromQr);
                     }else{
@@ -108,6 +121,7 @@ public class MainList extends ListFragment implements OnClickListener {
                     //editor.clear();
                     editor.putString(APP_PREFERENCES, newJson);
                     editor.apply();
+
 
                     //Map<String, String> deviceInfo = parseConnStr(data.getStringExtra("ConnectionString"));
                 }
@@ -145,9 +159,9 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        //updateListFromFirebase();
+        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
-        checkDevicesConnection(devices);
+        //checkDevicesConnection(devices);
         showList(devices);
     }
 
@@ -190,19 +204,63 @@ public class MainList extends ListFragment implements OnClickListener {
         }
     }
 
-    public void updateListFromFirebase(ArrayList<String> devicesFromFB){
+    public void updateListFromFirebase(DatabaseReference dbRef){
 
-        ArrayList<String> devicesFromFirebase = new ArrayList<>();
-        devicesFromFirebase = devicesFromFB;
-        //devicesFromFirebase = FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
-        devices.clear();
-        //get file with MySettings
+        ArrayList<String> my_list = new ArrayList<>();
 
-            for (String el: devicesFromFirebase){
-                Map<String, String> tempInfo = parser.parseQrWithIotHub(el);
-                devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
-                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                my_list.clear();
+                Log.v("Async101", "Done loading bookmarks");
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String connStr = ds.getValue().toString();
+                    my_list.add(connStr);
+                    //Log.d("TAG", connStr);
+                }
+                devices.clear();
+                for (String el: my_list){
+                    Map<String, String> tempInfo = parser.parseQrWithIotHub(el);
+                    devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
+                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+                }
+                Log.d("AH-TAG", "WOOHOO");
+                checkDevicesConnection(devices);
+                showList(devices);
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void writeToFriebase(DatabaseReference dbRef, String connstr) {
+        dbRef.setValue(connstr);
+        Log.d("AH-TAG", "Added to DB");
+    }
+
+    public void getDevices(DatabaseReference dbRef){
+
+        ArrayList<String> my_list = new ArrayList<>();
+
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v("Async101", "Done loading bookmarks");
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String connStr = ds.getKey();
+                    my_list.add(connStr);
+                    Log.d("TAG", connStr);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void checkDevicesConnection(ArrayList<DeviceObject> deviceList){
@@ -224,22 +282,19 @@ public class MainList extends ListFragment implements OnClickListener {
         }
     }
 
-
     public void showList(ArrayList<DeviceObject> deviceList){
 
         ArrayList<MyMainListItem> arrayToShow = new ArrayList<>();
 
-        MyIndicatorAdapter adapter = new MyIndicatorAdapter(getActivity(), arrayToShow);
         for(DeviceObject device: deviceList) {
             if(device.IsOnline){
                 arrayToShow.add(new MyMainListItem(R.drawable.green, device.DeviceName));
             }else{
                 arrayToShow.add(new MyMainListItem(R.drawable.grey, device.DeviceName));
             }
-
         }
 
-
+        MyIndicatorAdapter adapter = new MyIndicatorAdapter(getActivity(), arrayToShow);
         setListAdapter(adapter);
     }
 

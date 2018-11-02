@@ -22,9 +22,9 @@ public class MyParser {
     }
 
     public Map parseQrWithIotHub(String connstr) {
-        String withoutQuotes = connstr.substring(1, connstr.length()-1);
+        //String withoutQuotes = connstr.substring(1, connstr.length()-1);
         Map<String, String> deviceInfo = new HashMap<String, String>();
-        String[] parts = withoutQuotes.split("%");
+        String[] parts = connstr.split("%");
         deviceInfo.put("NotificationHubName", parts[0]);
         deviceInfo.put("SenderId", parts[1]);
         deviceInfo.put("NotHubConnectionString", parts[2]);

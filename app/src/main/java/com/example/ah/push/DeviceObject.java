@@ -9,7 +9,7 @@ public class DeviceObject {
     String StorageConnectionString;
     String IotHubConnectionString;
     String DeviceName;
-    Boolean IsOnline;
+    Boolean IsOnline = false;
 
 
     public DeviceObject(String NotificationHubName, String SenderId, String NotHubConnectionString, String TableName, String StorageConnectionString, String IotHubConnectionString, String DeviceName) {
