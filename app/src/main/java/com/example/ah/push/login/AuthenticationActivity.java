@@ -31,6 +31,7 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
     private EditText mEmailField;
     private EditText mPasswordField;
 
+
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
@@ -225,6 +226,11 @@ public class AuthenticationActivity extends BaseActivity implements View.OnClick
     }
 
     private void signOut() {
+        mAuth.signOut();
+        updateUI(null);
+    }
+
+    public void signOutFromExt(){
         mAuth.signOut();
         updateUI(null);
     }

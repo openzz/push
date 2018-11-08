@@ -1,14 +1,23 @@
 package com.example.ah.push;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
+
+import com.example.ah.push.login.AuthenticationActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Created by AH on 4/25/2018.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    AuthenticationActivity authAct = new AuthenticationActivity();
+
+    private FirebaseAuth mAuth;
 
     public static Boolean isVisible = false;
     public static MainActivity mainActivity;
@@ -17,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findViewById(R.id.sign_out_button).setOnClickListener(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         isVisible = true;
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -43,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
         isVisible = false;
     }
 
+    @Override
+    public void onBackPressed(){
+        moveTaskToBack(true);
+    }
+
     public void ToastNotify(final String notificationMessage) {
         runOnUiThread(new Runnable() {
             @Override
@@ -50,6 +67,16 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, notificationMessage, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onClick(View v) {
+        int i = v.getId();
+         if (i == R.id.sign_out_button) {
+
+             MainActivity.this.finish();
+             mAuth.signOut();
+        }
     }
 
 

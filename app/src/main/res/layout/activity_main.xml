@@ -12,9 +12,15 @@
         android:id="@+id/fragment"
         android:name="com.example.ah.push.MainList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="443dp"
         tools:layout="@layout/fragment">
 
     </fragment>
+
+    <Button
+        android:id="@+id/sign_out_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log out" />
 
 </LinearLayout>

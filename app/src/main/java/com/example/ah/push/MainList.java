@@ -13,20 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-
 import com.google.android.gms.common.api.CommonStatusCodes;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
-
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -36,8 +28,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.*;
 import static android.app.Activity.RESULT_OK;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 public class MainList extends ListFragment implements OnClickListener {
 
@@ -51,13 +41,13 @@ public class MainList extends ListFragment implements OnClickListener {
 
     MyParser parser = new MyParser();
 
-    FirebaseOperations FBOpers = new FirebaseOperations();
+    //FirebaseOperations FBOpers = new FirebaseOperations();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment, container, false);
-        Button button = (Button)v.findViewById(R.id.buttonAdd);
+        Button button = v.findViewById(R.id.buttonAdd);
         button.setOnClickListener(this);
         return v;
     }
@@ -68,7 +58,7 @@ public class MainList extends ListFragment implements OnClickListener {
 
         updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("devices"));
 
-        String connStr = "AnotherNotHub%823910043359%Endpoint=sb://namespaceforanotherhub.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=sM1ehJRmCynrWKBEp2bzFsK0SirGvsZU/wBi+m3psB0=%AnotherTable%DefaultEndpointsProtocol=http;AccountName=arduappba0e;AccountKey=p+en8MZCfLJ4ATCn25CGp8IbNUZy/UfsHBWlT5YKU9dyCHZhq02WUWcNxIidlYjZWrU1UmtJUn5g2+ya3n3Ewg==;%HostName=AHHub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=HLW6hFlQrEf9uOlu/Yr7+xOrBJYZx0AM/aP1ECxdYqc=%Hello_Andrew!";
+        //String connStr = "AnotherNotHub%823910043359%Endpoint=sb://namespaceforanotherhub.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=sM1ehJRmCynrWKBEp2bzFsK0SirGvsZU/wBi+m3psB0=%AnotherTable%DefaultEndpointsProtocol=http;AccountName=arduappba0e;AccountKey=p+en8MZCfLJ4ATCn25CGp8IbNUZy/UfsHBWlT5YKU9dyCHZhq02WUWcNxIidlYjZWrU1UmtJUn5g2+ya3n3Ewg==;%HostName=AHHub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=HLW6hFlQrEf9uOlu/Yr7+xOrBJYZx0AM/aP1ECxdYqc=%Hello_Andrew!";
         //FBOpers.addDeviceToDb(FirebaseDatabase.getInstance(), user, connStr);
         //FBOpers.removeDeviceFromDb(FirebaseDatabase.getInstance(), user, connStr);
 
@@ -90,70 +80,32 @@ public class MainList extends ListFragment implements OnClickListener {
                 if (resultCode == CommonStatusCodes.SUCCESS) {
                     String stringFromQr = data.getStringExtra("ConnectionString");
 
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    DeviceListFormatter dlf = new DeviceListFormatter();;
-                    try {
-                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
+                    Map<String, String> tempInfo = parser.parseQrWithIotHub(stringFromQr);
+                    DeviceObject tmpObject = new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
+                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
 
-                    if(dlf == null){
-                        dlf = new DeviceListFormatter();
-                        dlf.devices = new ArrayList<String>();
-                    }
-
-                    //DeviceListFormatter dlf = new DeviceListFormatter();
                     //TODO
-                    //DeviceObject tempDevice =
-                    if(!dlf.devices.contains(stringFromQr)){
-                        dlf.devices.add(stringFromQr);
+
+                    if(!devices.contains(tmpObject)){
+                        devices.add(tmpObject);
                     }else{
-                        //if (MainActivity.isVisible) {
-                            MainActivity.mainActivity.ToastNotify("Already in list.");
-                        //}
+                        MainActivity.mainActivity.ToastNotify("Already in list.");
                     }
-
-
-                    String newJson = new Gson().toJson(dlf);
-                    SharedPreferences.Editor editor = mSettings.edit();
-                    //editor.clear();
-                    editor.putString(APP_PREFERENCES, newJson);
-                    editor.apply();
-
-
-                    //Map<String, String> deviceInfo = parseConnStr(data.getStringExtra("ConnectionString"));
                 }
             }
 
             if (requestCode == 0) {
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
-                    int indexToDelete = bundle.getInt("indexToDelete", -1);
-
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson gson = builder.create();
-                    DeviceListFormatter dlf = new DeviceListFormatter();
-                    dlf.devices = new ArrayList<String>();
-                    try {
-                        dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
-                        dlf.devices.remove(indexToDelete);
+                    int indexToDelete;
+                    try{
+                        indexToDelete = bundle.getInt("indexToDelete", -1);
                     }catch (Exception e){
                         e.printStackTrace();
+                        indexToDelete = -1;
                     }
-
-                    SharedPreferences.Editor editor = mSettings.edit();
-
-                    if (dlf.devices.size() == 0){
-                        editor.clear();
-                    }else {
-                        String newJson = new Gson().toJson(dlf);
-                        editor.putString(APP_PREFERENCES, newJson);
-                    }
-                    editor.apply();
-
-                    //Map<String, String> deviceInfo = parseConnStr(data.getStringExtra("ConnectionString"));
+                    //TODO delete device from FB
+                    devices.remove(indexToDelete);
                 }
             }
         }catch (Exception e){
@@ -165,22 +117,12 @@ public class MainList extends ListFragment implements OnClickListener {
         showList(devices);
     }
 
+    //TODO
     @Override
     public void onListItemClick(ListView list, View v, int position, long id) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        DeviceListFormatter dlf = new DeviceListFormatter();
-        dlf.devices = new ArrayList<String>();
-        try {
-            dlf = gson.fromJson(mSettings.getString(APP_PREFERENCES, stringFromFile), DeviceListFormatter.class);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
-        String[] tmpArr = new String[dlf.devices.size()];
-        tmpArr = dlf.devices.toArray(tmpArr);
         Intent intent = new Intent(getActivity(), DisplayActivity.class);
-        intent.putExtra("ConnectionString", tmpArr[position]);
+        intent.putExtra("Device", devices.get(position));
         intent.putExtra("index", position);
         startActivityForResult(intent,0);
     }
@@ -225,7 +167,7 @@ public class MainList extends ListFragment implements OnClickListener {
                             tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
                 }
                 Log.d("AH-TAG", "WOOHOO");
-                checkDevicesConnection(devices);
+                //checkDevicesConnection(devices);
                 showList(devices);
             }
 
