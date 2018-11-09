@@ -36,9 +36,12 @@ public class FetchTable extends AsyncTask<String, Void, HashMap<String,HashMap<S
     @Override
     protected HashMap<String,HashMap<String, String>> doInBackground(String... params) {
 
-        Map<String, String> deviceInfo = parser.parseQr(params[0]);
-        storageConnectionString = deviceInfo.get("StorageConnectionString");
-        tableName = deviceInfo.get("TableName");
+        if(android.os.Debug.isDebuggerConnected())
+            android.os.Debug.waitForDebugger();
+
+        //Map<String, String> deviceInfo = parser.parseQr(params[0]);
+        storageConnectionString = params[0];//deviceInfo.get("StorageConnectionString");
+        tableName = params[1];//deviceInfo.get("TableName");
 
             try
             {
@@ -89,7 +92,7 @@ public class FetchTable extends AsyncTask<String, Void, HashMap<String,HashMap<S
                 String timeLower = TableQuery.generateFilterCondition(
                         ROW_KEY,
                         TableQuery.QueryComparisons.GREATER_THAN_OR_EQUAL,
-                        params[1]);
+                        params[2]);
                         //"11-07-2018 09:56:05,569"); TODO works perfect too  ???
                         //testDate2); TODO good
 
@@ -97,7 +100,7 @@ public class FetchTable extends AsyncTask<String, Void, HashMap<String,HashMap<S
                 String timeUpper = TableQuery.generateFilterCondition(
                         ROW_KEY,
                         TableQuery.QueryComparisons.LESS_THAN_OR_EQUAL,
-                        params[2]);
+                        params[3]);
                         //"12-07-2018 11:37:30,330"); TODO works perfect too  ???
                         //testDate3); TODO good
 

@@ -1,6 +1,9 @@
 package com.example.ah.push;
 
-public class DeviceObject {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class DeviceObject implements Parcelable {
 
     String NotificationHubName;
     String SenderId;
@@ -10,9 +13,10 @@ public class DeviceObject {
     String IotHubConnectionString;
     String DeviceName;
     Boolean IsOnline = false;
+    String FullConnString;
 
 
-    public DeviceObject(String NotificationHubName, String SenderId, String NotHubConnectionString, String TableName, String StorageConnectionString, String IotHubConnectionString, String DeviceName) {
+    public DeviceObject(String NotificationHubName, String SenderId, String NotHubConnectionString, String TableName, String StorageConnectionString, String IotHubConnectionString, String DeviceName, String FullConnString) {
         this.NotificationHubName=NotificationHubName;
         this.SenderId=SenderId;
         this.NotHubConnectionString=NotHubConnectionString;
@@ -21,7 +25,20 @@ public class DeviceObject {
         this.IotHubConnectionString=IotHubConnectionString;
         this.DeviceName=DeviceName;
         this.IsOnline=IsOnline;
+        this.FullConnString = FullConnString;
 
+    }
+
+
+    public DeviceObject(Parcel in) {
+        this.NotificationHubName=in.readString();
+        this.SenderId=in.readString();
+        this.NotHubConnectionString=in.readString();
+        this.TableName=in.readString();
+        this.StorageConnectionString=in.readString();
+        this.IotHubConnectionString=in.readString();
+        this.DeviceName=in.readString();
+        this.FullConnString = in.readString();
     }
 
     public String getNotificationHubName() {
@@ -95,4 +112,38 @@ public class DeviceObject {
         this.IsOnline=IsOnline;
     }
 
+
+    public String getFullConnString() {
+        return FullConnString;
+    }
+
+    public void setFullConnString(String FullConnString) {
+        this.FullConnString=FullConnString;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(NotificationHubName);
+        dest.writeString(SenderId);
+        dest.writeString(NotHubConnectionString);
+        dest.writeString(TableName);
+        dest.writeString(StorageConnectionString);
+        dest.writeString(IotHubConnectionString);
+        dest.writeString(DeviceName);
+    }
+
+    public static  final Parcelable.Creator<DeviceObject> CREATOR = new Parcelable.Creator<DeviceObject>(){
+        public DeviceObject createFromParcel(Parcel in){
+            return new DeviceObject(in);
+        }
+
+        public DeviceObject[] newArray(int size){
+            return new DeviceObject[size];
+        }
+    };
 }

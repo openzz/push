@@ -70,6 +70,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     private static CustomAdapter adapter;
     //private static CustomAdapterSens adapterSens;
     private static ArrayAdapter<String> adapterSens;
+    DeviceObject parcelDevice;
 
     Calendar dateAndTime = Calendar.getInstance();
     TextView fromDate;
@@ -80,9 +81,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
     Intent intent;
     String connString;
-
-    private String[] mGroupsArray = new String[] { "Sensors list" };
-    private String[] mSensorsArray;
+    String tableName;
 
     GraphView graph;
 
@@ -175,7 +174,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_display);
 
         intent = getIntent();
-        connString = intent.getStringExtra("ConnectionString");
+        parcelDevice = intent.getParcelableExtra("Device");
 
         fromDate = (TextView)findViewById(R.id.fromDate);
         toDate = (TextView)findViewById(R.id.toDate);
@@ -193,7 +192,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         listView=(ListView)findViewById(R.id.list);
 
         //String indexToDelete = intent.getStringExtra("index");
-        Map<String, String> deviceInfo = parser.parseQr(connString);
+        //Map<String, String> deviceInfo = parser.parseQr(connString);
 
         listView=(ListView)findViewById(R.id.list);
         listPush = (ListView)findViewById(R.id.expandable);
@@ -207,9 +206,12 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        NotificationSettings.SenderId = deviceInfo.get("SenderId");
-        NotificationSettings.HubName = deviceInfo.get("NotificationHubName");
-        NotificationSettings.HubListenConnectionString = deviceInfo.get("NotHubConnectionString");
+        NotificationSettings.SenderId = parcelDevice.getSenderId();//deviceInfo.get("SenderId");
+        NotificationSettings.HubName = parcelDevice.getNotificationHubName();//deviceInfo.get("NotificationHubName");
+        NotificationSettings.HubListenConnectionString = parcelDevice.getNotHubConnectionString();//deviceInfo.get("NotHubConnectionString");
+
+        connString = parcelDevice.getStorageConnectionString();
+        tableName = parcelDevice.getTableName();
 
         displayActivity = this;
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
@@ -218,7 +220,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
 
         TextView device = (TextView)findViewById(R.id.device);
-        device.setText(deviceInfo.get("NotificationHubName"));
+        device.setText(parcelDevice.getNotificationHubName());
+                //deviceInfo.get("NotificationHubName"));
     }
 
 
@@ -237,7 +240,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                 FetchTable fetchTask = new FetchTable();
 
                 try {
-                    fetchedData.clear();
+                    fetchedData = null;
                     graph.removeAllSeries();
                 }catch (Exception e){
                     e.printStackTrace();
@@ -274,7 +277,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                 toString = toString.substring(0,11) + "23:59:59,999";
 
 
-                fetchTask.execute(connString,fromString, toString, "0");
+                fetchTask.execute(connString, tableName, fromString, toString, "0");
                 //Back
                 //fetchTask.execute(connString,"12-07-2018 17:51:31,830", "12-07-2018 17:51:31,830", "0");
 
@@ -294,27 +297,30 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-
-
     public void setFromDate(View v){
-        new DatePickerDialog(DisplayActivity.this, fd, dateAndTime.get(Calendar.YEAR), dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
+        new DatePickerDialog(DisplayActivity.this, fd, dateAndTime.get(Calendar.YEAR),
+                dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     public void setToDate(View v){
-        new DatePickerDialog(DisplayActivity.this, td, dateAndTime.get(Calendar.YEAR), dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
+        new DatePickerDialog(DisplayActivity.this, td, dateAndTime.get(Calendar.YEAR),
+                dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     public void setTime(View v) {
-        new TimePickerDialog(DisplayActivity.this, t, dateAndTime.get(Calendar.HOUR_OF_DAY), dateAndTime.get(Calendar.MINUTE), true).show();
+        new TimePickerDialog(DisplayActivity.this, t, dateAndTime.get(Calendar.HOUR_OF_DAY),
+                dateAndTime.get(Calendar.MINUTE), true).show();
     }
 
     private void setInitialFromDateTime(){
-        fromDate.setText(DateUtils.formatDateTime(this, dateAndTime.getTimeInMillis(),DateUtils.FORMAT_SHOW_DATE| DateUtils.FORMAT_SHOW_YEAR));
+        fromDate.setText(DateUtils.formatDateTime(this, dateAndTime.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE| DateUtils.FORMAT_SHOW_YEAR));
     }
 
     private void setInitialToDateTime(){
 
-        toDate.setText(DateUtils.formatDateTime(this, dateAndTime.getTimeInMillis(),DateUtils.FORMAT_SHOW_DATE| DateUtils.FORMAT_SHOW_YEAR));
+        toDate.setText(DateUtils.formatDateTime(this, dateAndTime.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE| DateUtils.FORMAT_SHOW_YEAR));
     }
 
     DatePickerDialog.OnDateSetListener fd = new DatePickerDialog.OnDateSetListener() {
@@ -344,8 +350,6 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
             //setInitialToDateTime();
         }
     };
-
-
 
     @Override
     protected void onStart() {

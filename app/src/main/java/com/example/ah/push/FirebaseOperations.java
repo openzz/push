@@ -18,6 +18,7 @@ public class FirebaseOperations{
 
     private DatabaseReference mDatabase;
     boolean isInDbResult = false;
+    int index = 0;
 
 
     public boolean isUserInDb(String userId) throws InterruptedException{
@@ -71,11 +72,17 @@ public class FirebaseOperations{
         ArrayList<String> str_list = new ArrayList<>();
         ArrayList<Integer> int_list = new ArrayList<>();
 
+
+
         dbRef.addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 str_list.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if(ds.getValue().equals(connstr)){
+                        break;
+                    }
                     String key = ds.getKey();
                     str_list.add(key);
 
@@ -89,14 +96,14 @@ public class FirebaseOperations{
                     }
                 }
 
-                Collections.sort(int_list);
-                int index;
-
-                for(int i = 0; i<int_list.size()-1; i++){
-                    if( (int_list.get(i)+1) != int_list.get(i+1)){
-                        index = int_list.get(i)+1;
-                        dbRef.child(Integer.toString(index)).setValue(connstr);
-                        break;
+                for(int i = 0; i<int_list.size()+1; i++){
+                    try {
+                        if(!int_list.contains(i)){
+                            index = i;
+                            break;
+                        }
+                    }catch (IndexOutOfBoundsException e){
+                        e.printStackTrace();
                     }
                 }
             }
@@ -105,7 +112,9 @@ public class FirebaseOperations{
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
+
         });
+        dbRef.child(Integer.toString(index)).setValue(connstr);
     }
 
     public void addUserToDb(FirebaseDatabase db, FirebaseUser user){
@@ -122,6 +131,10 @@ public class FirebaseOperations{
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(android.os.Debug.isDebuggerConnected())
+                    android.os.Debug.waitForDebugger();
+
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     if(ds.getValue().toString().equals(connstrToRemove)){
                         ds.getRef().removeValue();

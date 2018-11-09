@@ -41,7 +41,7 @@ public class MainList extends ListFragment implements OnClickListener {
 
     MyParser parser = new MyParser();
 
-    //FirebaseOperations FBOpers = new FirebaseOperations();
+    FirebaseOperations FBOpers = new FirebaseOperations();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
@@ -82,7 +82,9 @@ public class MainList extends ListFragment implements OnClickListener {
 
                     Map<String, String> tempInfo = parser.parseQrWithIotHub(stringFromQr);
                     DeviceObject tmpObject = new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
-                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), stringFromQr);
+
+                    FBOpers.addDeviceToDb(FirebaseDatabase.getInstance(), user, tmpObject.getFullConnString());
 
                     //TODO
 
@@ -105,16 +107,18 @@ public class MainList extends ListFragment implements OnClickListener {
                         indexToDelete = -1;
                     }
                     //TODO delete device from FB
-                    devices.remove(indexToDelete);
+                    //devices.remove(indexToDelete);
+                    FBOpers.removeDeviceFromDb(FirebaseDatabase.getInstance(), user, devices.get(indexToDelete).getFullConnString());
+
                 }
             }
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
+        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("devices"));
         //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
         //checkDevicesConnection(devices);
-        showList(devices);
+        //showList(devices);
     }
 
     //TODO
@@ -126,7 +130,7 @@ public class MainList extends ListFragment implements OnClickListener {
         intent.putExtra("index", position);
         startActivityForResult(intent,0);
     }
-
+/*
     public void updateList(){
         JsonParser jParser = new JsonParser();
         devices.clear();
@@ -141,11 +145,11 @@ public class MainList extends ListFragment implements OnClickListener {
             for (JsonElement el: formStringJson.getAsJsonArray("devices")){
                 Map<String, String> tempInfo = parser.parseQrWithIotHub(el.toString());
                 devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
-                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), stringFromFile));
             }
         }
     }
-
+*/
     public void updateListFromFirebase(DatabaseReference dbRef){
 
         ArrayList<String> my_list = new ArrayList<>();
@@ -164,7 +168,7 @@ public class MainList extends ListFragment implements OnClickListener {
                 for (String el: my_list){
                     Map<String, String> tempInfo = parser.parseQrWithIotHub(el);
                     devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
-                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName")));
+                            tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), el));
                 }
                 Log.d("AH-TAG", "WOOHOO");
                 //checkDevicesConnection(devices);
@@ -177,6 +181,8 @@ public class MainList extends ListFragment implements OnClickListener {
             }
         });
     }
+
+
 
     private void writeToFriebase(DatabaseReference dbRef, String connstr) {
         dbRef.setValue(connstr);
