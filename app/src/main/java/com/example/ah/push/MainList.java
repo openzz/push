@@ -31,10 +31,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class MainList extends ListFragment implements OnClickListener {
 
-    String stringFromFile;
     private static final int STRING_CAPTURE = 12;
-    public static final String APP_PREFERENCES = "mysettings";
-    private SharedPreferences mSettings;
 
     ArrayList<String> onlineDevices;
     ArrayList<DeviceObject> devices = new ArrayList<>();
@@ -43,6 +40,8 @@ public class MainList extends ListFragment implements OnClickListener {
 
     FirebaseOperations FBOpers = new FirebaseOperations();
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+    DatabaseReference mDatabaseRef = mDatabase.getReference().child("users").child(user.getUid()).child("devices");
 
     @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -55,14 +54,9 @@ public class MainList extends ListFragment implements OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-
-        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("devices"));
-
-        //String connStr = "AnotherNotHub%823910043359%Endpoint=sb://namespaceforanotherhub.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=sM1ehJRmCynrWKBEp2bzFsK0SirGvsZU/wBi+m3psB0=%AnotherTable%DefaultEndpointsProtocol=http;AccountName=arduappba0e;AccountKey=p+en8MZCfLJ4ATCn25CGp8IbNUZy/UfsHBWlT5YKU9dyCHZhq02WUWcNxIidlYjZWrU1UmtJUn5g2+ya3n3Ewg==;%HostName=AHHub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=HLW6hFlQrEf9uOlu/Yr7+xOrBJYZx0AM/aP1ECxdYqc=%Hello_Andrew!";
-        //FBOpers.addDeviceToDb(FirebaseDatabase.getInstance(), user, connStr);
-        //FBOpers.removeDeviceFromDb(FirebaseDatabase.getInstance(), user, connStr);
-
-    }
+        checkDevicesConnection(devices);
+        updateListFromFirebase(mDatabaseRef);
+        }
 
     @Override
     public void onClick(View v) {
@@ -84,15 +78,8 @@ public class MainList extends ListFragment implements OnClickListener {
                     DeviceObject tmpObject = new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
                             tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), stringFromQr);
 
-                    FBOpers.addDeviceToDb(FirebaseDatabase.getInstance(), user, tmpObject.getFullConnString());
 
-                    //TODO
-
-                    if(!devices.contains(tmpObject)){
-                        devices.add(tmpObject);
-                    }else{
-                        MainActivity.mainActivity.ToastNotify("Already in list.");
-                    }
+                    FBOpers.addDeviceToDb(mDatabase, user, tmpObject.getFullConnString());
                 }
             }
 
@@ -107,49 +94,25 @@ public class MainList extends ListFragment implements OnClickListener {
                         indexToDelete = -1;
                     }
                     //TODO delete device from FB
-                    //devices.remove(indexToDelete);
-                    FBOpers.removeDeviceFromDb(FirebaseDatabase.getInstance(), user, devices.get(indexToDelete).getFullConnString());
-
+                    FBOpers.removeDeviceFromDb(mDatabase, user, devices.get(indexToDelete).getFullConnString());
                 }
             }
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        updateListFromFirebase(FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid()).child("devices"));
-        //FBOpers.getDevices(FirebaseDatabase.getInstance().getReference().child("users").child("openzzggl-gmail-com"));
-        //checkDevicesConnection(devices);
-        //showList(devices);
+        checkDevicesConnection(devices);
+        updateListFromFirebase(mDatabaseRef);
     }
 
     //TODO
     @Override
     public void onListItemClick(ListView list, View v, int position, long id) {
-
         Intent intent = new Intent(getActivity(), DisplayActivity.class);
         intent.putExtra("Device", devices.get(position));
         intent.putExtra("index", position);
         startActivityForResult(intent,0);
     }
-/*
-    public void updateList(){
-        JsonParser jParser = new JsonParser();
-        devices.clear();
-        //get file with MySettings
-        mSettings = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        if (mSettings.contains(APP_PREFERENCES)) {
-            // Get connStrings from the file
-            stringFromFile = mSettings.getString(APP_PREFERENCES, stringFromFile);
-            //convert plainJson to jsonObject
 
-            JsonObject formStringJson = (JsonObject) jParser.parse(stringFromFile);
-            for (JsonElement el: formStringJson.getAsJsonArray("devices")){
-                Map<String, String> tempInfo = parser.parseQrWithIotHub(el.toString());
-                devices.add(new DeviceObject(tempInfo.get("NotificationHubName"), tempInfo.get("SenderId"), tempInfo.get("NotHubConnectionString"), tempInfo.get("TableName"),
-                        tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), stringFromFile));
-            }
-        }
-    }
-*/
     public void updateListFromFirebase(DatabaseReference dbRef){
 
         ArrayList<String> my_list = new ArrayList<>();
@@ -182,13 +145,6 @@ public class MainList extends ListFragment implements OnClickListener {
         });
     }
 
-
-
-    private void writeToFriebase(DatabaseReference dbRef, String connstr) {
-        dbRef.setValue(connstr);
-        Log.d("AH-TAG", "Added to DB");
-    }
-
     public void getDevices(DatabaseReference dbRef){
 
         ArrayList<String> my_list = new ArrayList<>();
@@ -196,7 +152,6 @@ public class MainList extends ListFragment implements OnClickListener {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.v("Async101", "Done loading bookmarks");
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
                     String connStr = ds.getKey();
                     my_list.add(connStr);
@@ -216,7 +171,7 @@ public class MainList extends ListFragment implements OnClickListener {
             try{
                 CheckDevices checkDevices = new CheckDevices();
                 checkDevices.execute(dev);
-                onlineDevices = checkDevices.get();
+                //onlineDevices = checkDevices.get();
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -246,4 +201,10 @@ public class MainList extends ListFragment implements OnClickListener {
         setListAdapter(adapter);
     }
 
+    /*
+    private void writeToFriebase(DatabaseReference dbRef, String connstr) {
+        dbRef.setValue(connstr);
+        Log.d("AH-TAG", "Added to DB");
+    }
+    */
 }

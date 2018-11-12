@@ -27,6 +27,10 @@ public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String
     @Override
     protected ArrayList<String> doInBackground(DeviceObject... devices) {
 
+        if(android.os.Debug.isDebuggerConnected())
+            android.os.Debug.waitForDebugger();
+
+        System.out.println("Hello");
         try {
             twinClient = DeviceTwin.createFromConnectionString(devices[0].getIotHubConnectionString());
             DeviceTwinDevice device = new DeviceTwinDevice(devices[0].getDeviceName());

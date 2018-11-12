@@ -69,7 +69,6 @@ public class FirebaseOperations{
         String userId = user.getUid();
         DatabaseReference dbRef = db.getReference().child("users").child(userId).child("devices");
 
-        ArrayList<String> str_list = new ArrayList<>();
         ArrayList<Integer> int_list = new ArrayList<>();
 
 
@@ -78,34 +77,30 @@ public class FirebaseOperations{
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                str_list.clear();
+                int_list.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
                     if(ds.getValue().equals(connstr)){
                         break;
                     }
                     String key = ds.getKey();
-                    str_list.add(key);
+                    int_list.add(Integer.parseInt(key));
 
                 }
-                for(String el: str_list){
-                    try{
-                        int_list.add(Integer.parseInt(el));
-                    }catch (Exception e){
-                        Log.d("AH-TAG", "Can't parse to int");
-                        e.printStackTrace();
-                    }
-                }
 
-                for(int i = 0; i<int_list.size()+1; i++){
+                for(int i = 0; i<=int_list.size(); ++i){
                     try {
                         if(!int_list.contains(i)){
                             index = i;
+                            dbRef.child(Integer.toString(index)).setValue(connstr);
                             break;
                         }
                     }catch (IndexOutOfBoundsException e){
                         e.printStackTrace();
+                        dbRef.child(Integer.toString(index)).setValue(connstr);
+                        break;
                     }
                 }
+                dbRef.removeEventListener(this);
             }
 
             @Override
@@ -114,7 +109,7 @@ public class FirebaseOperations{
             }
 
         });
-        dbRef.child(Integer.toString(index)).setValue(connstr);
+
     }
 
     public void addUserToDb(FirebaseDatabase db, FirebaseUser user){
@@ -140,6 +135,7 @@ public class FirebaseOperations{
                         ds.getRef().removeValue();
                     }
                 }
+                dbRef.removeEventListener(this);
             }
 
             @Override
