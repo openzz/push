@@ -125,7 +125,7 @@ public class MyHandler extends NotificationsHandler {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(ctx)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Alert")
+                        .setContentTitle("Iot hub alert.")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setSound(defaultSoundUri)

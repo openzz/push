@@ -21,8 +21,8 @@ import java.util.ArrayList;
 public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String>> {
 
     public ArrayList<String> onlineDevices = new ArrayList<>();
-    private DeviceTwin twinClient;
-    private Query twinQuery;
+    DeviceTwin twinClient;
+    Query twinQuery;
 
     @Override
     protected ArrayList<String> doInBackground(DeviceObject... devices) {

@@ -74,6 +74,7 @@ public class CustomAdapterSens extends ArrayAdapter<DataModelSens> implements Vi
         //lastPosition = position;
 
         viewHolder.txtName.setText(dataModel.getSensor());
+        viewHolder.txtType.setText(dataModel.getValue());
         // Return the completed view to render on screen
         return convertView;
     }

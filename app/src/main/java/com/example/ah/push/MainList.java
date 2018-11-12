@@ -54,7 +54,7 @@ public class MainList extends ListFragment implements OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        checkDevicesConnection(devices);
+        //checkDevicesConnection(devices);
         updateListFromFirebase(mDatabaseRef);
         }
 
@@ -100,7 +100,7 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        checkDevicesConnection(devices);
+        //checkDevicesConnection(devices);
         updateListFromFirebase(mDatabaseRef);
     }
 
@@ -171,7 +171,7 @@ public class MainList extends ListFragment implements OnClickListener {
             try{
                 CheckDevices checkDevices = new CheckDevices();
                 checkDevices.execute(dev);
-                //onlineDevices = checkDevices.get();
+                onlineDevices = checkDevices.get();
             }catch(Exception e){
                 e.printStackTrace();
             }

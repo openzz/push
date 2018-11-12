@@ -20,10 +20,10 @@
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginEnd="29dp"
-        android:text=""
+        android:text="N/A"
         android:textColor="@android:color/black" />
 
     <TextView
@@ -42,12 +42,10 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="72dp"
+        android:layout_marginEnd="37dp"
         android:layout_toStartOf="@+id/type"
-        android:text="Value:"
-        android:textColor="@android:color/black"
-        />
+        android:text="Last value:"
+        android:textColor="@android:color/black" />
 
 
 </RelativeLayout>

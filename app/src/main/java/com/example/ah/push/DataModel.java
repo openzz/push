@@ -8,11 +8,13 @@ public class DataModel {
 
     String sensorId;
     String value;
+    int color;
 
 
-    public DataModel(String sensorid, String val) {
+    public DataModel(String sensorid, String val, int color) {
         this.sensorId=sensorid;
         this.value=val;
+        this.color = color;
 
     }
 
@@ -23,5 +25,7 @@ public class DataModel {
     public String getValue() {
         return value;
     }
+
+    public int getColor() { return  color;}
 
 }

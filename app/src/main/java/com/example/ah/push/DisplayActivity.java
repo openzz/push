@@ -68,8 +68,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     ListView listView;
     ListView listPush;
     private static CustomAdapter adapter;
-    //private static CustomAdapterSens adapterSens;
-    private static ArrayAdapter<String> adapterSens;
+    private static CustomAdapterSens adapterSens;
+    private static ArrayAdapter<String> adapterArr;
     DeviceObject parcelDevice;
 
     Calendar dateAndTime = Calendar.getInstance();
@@ -84,6 +84,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     String tableName;
 
     GraphView graph;
+
+    Boolean chklistTest;
 
     HashMap<String, HashMap<String, String>> fetchedData;
 
@@ -173,6 +175,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
 
+        chklistTest = false;
+
         intent = getIntent();
         parcelDevice = intent.getParcelableExtra("Device");
 
@@ -195,7 +199,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         //Map<String, String> deviceInfo = parser.parseQr(connString);
 
         listView=(ListView)findViewById(R.id.list);
-        listPush = (ListView)findViewById(R.id.expandable);
+        //listPush = (ListView)findViewById(R.id.expandable);
         setListViewHeightBasedOnChildren(listView);
 
         listView.setOnTouchListener(new View.OnTouchListener() {
@@ -361,6 +365,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     protected void onPause() {
         super.onPause();
         isVisible = false;
+        chklistTest = false;
     }
 
     @Override
@@ -373,6 +378,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     protected void onStop() {
         super.onStop();
         isVisible = false;
+        chklistTest = false;
     }
 
     public void ToastNotify(final String notificationMessage) {
@@ -394,6 +400,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
                 try {
                     String inJson = notificationMessage;
+                    Random rand = new Random();
 
                     GsonBuilder builder = new GsonBuilder();
                     Gson gson = builder.create();
@@ -405,15 +412,18 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                         String updateTime = updateTimeFormatter.format(updateDate);
                         lastUpdate.setText(updateTime);
 
-                        dataModels = new ArrayList<>();
+                        checkListItems = new ArrayList<>();
 
                         for (IncomingMessage.Board.Sensor sensor : msg.body.sensors) {
-                            dataModels.add(new DataModel(sensor.sensorid, sensor.value));
+                            int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
+                            checkListItems.add(new DataModelSens(sensor.sensorid, sensor.value, col));
                         }
 
-                        adapter = new CustomAdapter(dataModels, getApplicationContext());
-                        listPush.setAdapter(adapter);
-                        setListViewHeightBasedOnChildren(listPush);
+                        adapterSens = new CustomAdapterSens(checkListItems, getApplicationContext());
+                        if(chklistTest){
+                            listView.setAdapter(adapterSens);
+                        }
+                        //setListViewHeightBasedOnChildren(listPush);
                     }
 
                 }catch (Exception e){
@@ -425,6 +435,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
 
     public void checkList(final HashMap<String, HashMap<String, String>> sensors) {
+
+        chklistTest = true;
 
                 try {
                     checkListItems = new ArrayList<>();
@@ -439,14 +451,14 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                         for (Map.Entry<String, HashMap<String, String>> entry : sensors.entrySet()) {
                             if (!checkListItems.contains(entry.getKey())) {
                                 int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
-                                checkListItems.add(new DataModelSens(entry.getKey(), col));
+                                checkListItems.add(new DataModelSens(entry.getKey(), null, col));
                                 checkListItems1.add(entry.getKey());
                                 //entry.getKey().toString());
                             }
                         }
                     }
 
-                    adapterSens = new ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, checkListItems1);
+                    adapterSens = new CustomAdapterSens(checkListItems, this );
                             //CustomAdapterSens(checkListItems, getApplicationContext());
                     listView.setAdapter(adapterSens);
 
@@ -492,8 +504,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                                     graph.addSeries(dots);
                                     dots.setShape(PointsGraphSeries.Shape.POINT);
                                     graph.getViewport().setXAxisBoundsManual(true);
-                                    graph.getViewport().setMinX(x[0].getX());
                                     graph.getViewport().setMaxX(x[x.length - 1].getX());
+                                    graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
                                     graph.getViewport().setScalable(true);
                                 } else {
                                     graph.addSeries(dots);

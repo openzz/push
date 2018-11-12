@@ -36,14 +36,15 @@
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".DisplayActivity">
+        <activity android:name=".DisplayActivity"
+            android:label="Device">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
         <activity android:name=".MainActivity"
-            android:label="Main">
+            android:label="Device list">
             <intent-filter>
                 <action android:name = "android.intent.action.MAIN"/>
             </intent-filter>
@@ -57,7 +58,7 @@
 
         <activity
             android:name=".ListItem"
-            android:label="Detail">
+            android:label="Add device">
         </activity>
 
         <activity

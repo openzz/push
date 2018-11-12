@@ -8,16 +8,29 @@ public class DataModelSens {
 
     String sensorId;
     int color;
+    String value;
 
 
-    public DataModelSens(String sensorid, int color) {
+    public DataModelSens(String sensorid, String val, int color) {
         this.sensorId = sensorid;
         this.color = color;
+        this.value=val;
     }
 
     public String getSensor() {
         return sensorId;
     }
+    public String getValue() {
+        return value;
+    }
     public int getColor() { return  color;}
+
+    public void setValue(String v){
+        value = v;
+    }
+
+    public void setColor(int c){
+        color = c;
+    }
 
 }
