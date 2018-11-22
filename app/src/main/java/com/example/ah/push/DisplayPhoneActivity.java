@@ -46,11 +46,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 
-public class DisplayActivity extends AppCompatActivity implements View.OnClickListener {
+public class DisplayPhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public static DisplayActivity displayActivity;
+    public static DisplayPhoneActivity displayPhoneActivity;
     public static Boolean isVisible = false;
-    private static final String TAG = "DisplayActivity";
+    private static final String TAG = "DisplayPhoneActivity";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     ArrayList<DataModel> dataModels;
@@ -164,7 +164,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         registerWithNotificationHubs();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
+        setContentView(R.layout.activity_display_phone);
 
         chklistTest = false;
 
@@ -208,7 +208,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         connString = parcelDevice.getStorageConnectionString();
         tableName = parcelDevice.getTableName();
 
-        displayActivity = this;
+        displayPhoneActivity = this;
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
         registerWithNotificationHubs();
 
@@ -216,7 +216,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
         TextView device = (TextView)findViewById(R.id.device);
         device.setText(parcelDevice.getNotificationHubName());
-                //deviceInfo.get("NotificationHubName"));
+        //deviceInfo.get("NotificationHubName"));
     }
 
 
@@ -224,10 +224,8 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.measureButton:{
-                Intent answerIntent = new Intent();
-                answerIntent.putExtra("indexToDelete", intent.getIntExtra("index", -1));
-                setResult(RESULT_OK, answerIntent);
-                DisplayActivity.this.finish();
+                Intent intent = new Intent(DisplayPhoneActivity.this, SensorsActivity.class);
+                startActivity(intent);
                 break;
             }
 
@@ -293,17 +291,17 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public void setFromDate(View v){
-        new DatePickerDialog(DisplayActivity.this, fd, dateAndTime.get(Calendar.YEAR),
+        new DatePickerDialog(DisplayPhoneActivity.this, fd, dateAndTime.get(Calendar.YEAR),
                 dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     public void setToDate(View v){
-        new DatePickerDialog(DisplayActivity.this, td, dateAndTime.get(Calendar.YEAR),
+        new DatePickerDialog(DisplayPhoneActivity.this, td, dateAndTime.get(Calendar.YEAR),
                 dateAndTime.get(Calendar.MONTH), dateAndTime.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     public void setTime(View v) {
-        new TimePickerDialog(DisplayActivity.this, t, dateAndTime.get(Calendar.HOUR_OF_DAY),
+        new TimePickerDialog(DisplayPhoneActivity.this, t, dateAndTime.get(Calendar.HOUR_OF_DAY),
                 dateAndTime.get(Calendar.MINUTE), true).show();
     }
 
@@ -376,7 +374,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(DisplayActivity.this, notificationMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(DisplayPhoneActivity.this, notificationMessage, Toast.LENGTH_LONG).show();
                 //TextView helloText = (TextView) findViewById(R.id.text_hello);
                 //helloText.setText(notificationMessage);
             }
@@ -429,85 +427,85 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
         chklistTest = true;
 
-                try {
-                    checkListItems = new ArrayList<>();
-                    checkListItems1 = new ArrayList<>();
-                    Random rand = new Random();
+        try {
+            checkListItems = new ArrayList<>();
+            checkListItems1 = new ArrayList<>();
+            Random rand = new Random();
 
-                    if (sensors.size() == 0){
-                        adapterSens.clear();
-                    }else {
+            if (sensors.size() == 0){
+                adapterSens.clear();
+            }else {
 
 
-                        for (Map.Entry<String, HashMap<String, String>> entry : sensors.entrySet()) {
-                            if (!checkListItems.contains(entry.getKey())) {
-                                int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
-                                checkListItems.add(new DataModelSens(entry.getKey(), null, col));
-                                checkListItems1.add(entry.getKey());
-                                //entry.getKey().toString());
-                            }
-                        }
+                for (Map.Entry<String, HashMap<String, String>> entry : sensors.entrySet()) {
+                    if (!checkListItems.contains(entry.getKey())) {
+                        int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
+                        checkListItems.add(new DataModelSens(entry.getKey(), null, col));
+                        checkListItems1.add(entry.getKey());
+                        //entry.getKey().toString());
                     }
+                }
+            }
 
-                    adapterSens = new CustomAdapterSens(checkListItems, this );
-                            //CustomAdapterSens(checkListItems, getApplicationContext());
-                    listView.setAdapter(adapterSens);
+            adapterSens = new CustomAdapterSens(checkListItems, this );
+            //CustomAdapterSens(checkListItems, getApplicationContext());
+            listView.setAdapter(adapterSens);
 
-                }catch (Exception e){
-                    e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        listView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                SparseBooleanArray sp = listView.getCheckedItemPositions();
+
+                ArrayList<String> selectedItems = new ArrayList<String>();
+
+                for (int i = 0; i < checkListItems.size(); i++) {
+                    if (sp.get(i)) {
+                        selectedItems.add(checkListItems.get(i).getSensor());
+                    }
                 }
 
-                listView.setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                        SparseBooleanArray sp = listView.getCheckedItemPositions();
+                DataPoint[][] series = new DataPoint[selectedItems.size()][];
+                graph.removeAllSeries();
 
-                        ArrayList<String> selectedItems = new ArrayList<String>();
-
-                        for (int i = 0; i < checkListItems.size(); i++) {
-                            if (sp.get(i)) {
-                                selectedItems.add(checkListItems.get(i).getSensor());
-                            }
-                        }
+                int k = 0;
+                for (Map.Entry<String, HashMap<String, String>> entry : fetchedData.entrySet()) {
+                    if(selectedItems.contains(entry.getKey())) {
+                        //series[i] = mapToDp(entry.getValue());
+                        DataPoint[] x = mapToDp(entry.getValue());
+                        int color = checkListItems.get(k).getColor();
 
 
-                        DataPoint[][] series = new DataPoint[selectedItems.size()][];
-                        graph.removeAllSeries();
+                        LineGraphSeries<DataPoint> spline = new LineGraphSeries<>(x);
+                        PointsGraphSeries<DataPoint> dots = new PointsGraphSeries<>(x);
 
-                        int k = 0;
-                        for (Map.Entry<String, HashMap<String, String>> entry : fetchedData.entrySet()) {
-                            if(selectedItems.contains(entry.getKey())) {
-                                //series[i] = mapToDp(entry.getValue());
-                                DataPoint[] x = mapToDp(entry.getValue());
-                                int color = checkListItems.get(k).getColor();
+                        spline.setColor(color);
+                        dots.setColor(color);
 
 
-                                LineGraphSeries<DataPoint> spline = new LineGraphSeries<>(x);
-                                PointsGraphSeries<DataPoint> dots = new PointsGraphSeries<>(x);
-
-                                spline.setColor(color);
-                                dots.setColor(color);
-
-
-                                if (x.length > 1) {
-                                    graph.addSeries(spline);
-                                    graph.addSeries(dots);
-                                    dots.setShape(PointsGraphSeries.Shape.POINT);
-                                    graph.getViewport().setXAxisBoundsManual(true);
-                                    graph.getViewport().setMaxX(x[x.length - 1].getX());
-                                    graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
-                                    graph.getViewport().setScalable(true);
-                                } else {
-                                    graph.addSeries(dots);
-                                    graph.getViewport().setXAxisBoundsManual(false);
-                                }
-                            }
-                            graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(DisplayActivity.this));
-                            graph.getGridLabelRenderer().setNumHorizontalLabels(2);
-                            k++;
+                        if (x.length > 1) {
+                            graph.addSeries(spline);
+                            graph.addSeries(dots);
+                            dots.setShape(PointsGraphSeries.Shape.POINT);
+                            graph.getViewport().setXAxisBoundsManual(true);
+                            graph.getViewport().setMaxX(x[x.length - 1].getX());
+                            graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
+                            graph.getViewport().setScalable(true);
+                        } else {
+                            graph.addSeries(dots);
+                            graph.getViewport().setXAxisBoundsManual(false);
                         }
                     }
-                });
+                    graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(DisplayPhoneActivity.this));
+                    graph.getGridLabelRenderer().setNumHorizontalLabels(2);
+                    k++;
+                }
+            }
+        });
     }
 }

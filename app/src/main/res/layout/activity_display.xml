@@ -111,7 +111,7 @@
             android:choiceMode="multipleChoice" />
 
         <Button
-            android:id="@+id/deleteButton"
+            android:id="@+id/measureButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/list"
@@ -124,7 +124,7 @@
             android:id="@+id/buttonApply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/deleteButton"
+            android:layout_alignEnd="@+id/measureButton"
             android:layout_alignBottom="@+id/to"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="3dp"

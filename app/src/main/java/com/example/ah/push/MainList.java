@@ -107,9 +107,16 @@ public class MainList extends ListFragment implements OnClickListener {
     //TODO
     @Override
     public void onListItemClick(ListView list, View v, int position, long id) {
-        Intent intent = new Intent(getActivity(), DisplayActivity.class);
-        intent.putExtra("Device", devices.get(position));
-        intent.putExtra("index", position);
+        Intent intent = new Intent();
+        if(devices.get(position).DeviceName.equals("Default")){
+            intent = new Intent(getActivity(), DisplayPhoneActivity.class);
+            intent.putExtra("Device", devices.get(position));
+            intent.putExtra("index", position);
+        }else{
+            intent = new Intent(getActivity(), DisplayActivity.class);
+            intent.putExtra("Device", devices.get(position));
+            intent.putExtra("index", position);
+        }
         startActivityForResult(intent,0);
     }
 

@@ -43,6 +43,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".DisplayPhoneActivity"
+            android:label="Device">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".MainActivity"
             android:label="Device list">
             <intent-filter>
@@ -73,6 +80,19 @@
         //hold until will be fixed (google issue)
         //Failed resolution of: [Lorg/apache/http/Header
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
+
+        //Sensors
+        <activity android:name=".SensorsActivity" android:label="Sensor list"/>
+
+        <activity android:name=".sensors.SensAccelerometerActivity" android:label="Accelerometer"/>
+        <activity android:name=".sensors.SensGyroscopeActivity" android:label="Gyroscope"/>
+        <activity android:name=".sensors.SensLightActivity" android:label="Light sensor"/>
+        <activity android:name=".sensors.SensLinearAccelerometerActivity" android:label="Linear accelerometer"/>
+        <activity android:name=".sensors.SensMagnetometerActivity" android:label="Magnetometer"/>
+        <activity android:name=".sensors.SensOrientationActivity" android:label="Orientation sensor"/>
+        <activity android:name=".sensors.SensProximityActivity" android:label="Proximity sensor"/>
+        <activity android:name=".sensors.SensRotationVectorActivity" android:label="Rotation vector sensor"/>
+        <activity android:name=".sensors.SensSignificantMotionActivity" android:label="Significant motion sensor"/>
 
     </application>
 
