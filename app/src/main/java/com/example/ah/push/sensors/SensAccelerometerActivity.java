@@ -7,20 +7,39 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.ah.push.PhoneAzureDevice;
 import com.example.ah.push.R;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.microsoft.azure.sdk.iot.device.DeviceClient;
+import com.microsoft.azure.sdk.iot.device.IotHubClientProtocol;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SensAccelerometerActivity extends AppCompatActivity implements SensorEventListener {
+
+    private static String connString = "HostName=AHHub.azure-devices.net;DeviceId=MKR1000;SharedAccessKey=5k+d+VFq3QMNwHQXAgoqKHqaynz9x8NNqEy1E1PUrbw=";
+    private static IotHubClientProtocol protocol = IotHubClientProtocol.MQTT;
+    private static DeviceClient client;
+    private static String deviceName = "MKR1000";
 
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
+
+    boolean sending = false;
 
     private TextView sensorText;
 
@@ -38,7 +57,9 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
 
     SensorManager sensorManager;
     Sensor mSensor;
-/*
+
+    int samplingPeriod = 1000;
+
     Handler handler = new Handler();
 
     private Runnable appendData = new Runnable() {
@@ -49,16 +70,32 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
             seriesY.appendData(new DataPoint(time, y), true, 1000);
             seriesZ.appendData(new DataPoint(time, z), true, 1000);
 
-            handler.postDelayed(this, 50);
+            try{
+                client.open();
+                PhoneAzureDevice.MessageSender sender = new PhoneAzureDevice.MessageSender(client, "66", mSensor.getName());
+                sender.setValue(String.valueOf(x)+";"+String.valueOf(y)+";"+String.valueOf(z));
+                ExecutorService executor = Executors.newFixedThreadPool(1);
+                executor.execute(sender);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+            handler.postDelayed(this, samplingPeriod);
         }
     };
-    */
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accelerometer);
+
+        try {
+            client = new DeviceClient(connString, protocol);
+        }catch (URISyntaxException e){
+            e.printStackTrace();
+        }
 
         sensorText = (TextView)findViewById(R.id.sensorTextView);
 
@@ -90,7 +127,31 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
 
         sensorText.setText(mSensor.getName());
 
-        //handler.post(appendData);
+        EditText samplingFrequency = (EditText)findViewById(R.id.editText_frequency);
+
+        Button startMeasureButton = (Button)findViewById(R.id.button_measure);
+
+        startMeasureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(sending == false){
+                    samplingPeriod = Integer.parseInt(samplingFrequency.getText().toString());
+                    handler.post(appendData);
+                    startMeasureButton.setText("Stop");
+                    sending = true;
+                }else {
+                    handler.removeCallbacks(appendData);
+                    startMeasureButton.setText("Start measure");
+                    try {
+                        client.closeNow();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+
+                    sending = false;
+                }
+            }
+        });
     }
 
 
