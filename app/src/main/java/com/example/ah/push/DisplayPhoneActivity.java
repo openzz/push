@@ -439,7 +439,7 @@ public class DisplayPhoneActivity extends AppCompatActivity implements View.OnCl
 
                 for (Map.Entry<String, HashMap<String, String>> entry : sensors.entrySet()) {
                     if (!checkListItems.contains(entry.getKey())) {
-                        int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
+                        int col = Color.rgb(rand.nextInt(120), rand.nextInt(120), rand.nextInt(120));
                         checkListItems.add(new DataModelSens(entry.getKey(), null, col));
                         checkListItems1.add(entry.getKey());
                         //entry.getKey().toString());
@@ -480,13 +480,11 @@ public class DisplayPhoneActivity extends AppCompatActivity implements View.OnCl
                         DataPoint[] x = mapToDp(entry.getValue());
                         int color = checkListItems.get(k).getColor();
 
-
                         LineGraphSeries<DataPoint> spline = new LineGraphSeries<>(x);
                         PointsGraphSeries<DataPoint> dots = new PointsGraphSeries<>(x);
 
                         spline.setColor(color);
                         dots.setColor(color);
-
 
                         if (x.length > 1) {
                             graph.addSeries(spline);
@@ -494,7 +492,12 @@ public class DisplayPhoneActivity extends AppCompatActivity implements View.OnCl
                             dots.setShape(PointsGraphSeries.Shape.POINT);
                             graph.getViewport().setXAxisBoundsManual(true);
                             graph.getViewport().setMaxX(x[x.length - 1].getX());
-                            graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
+                            if (x.length > 2){
+                                graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
+                            }
+                            if(x.length == 2){
+                                graph.getViewport().setMinX(x[0].getX());
+                            }
                             graph.getViewport().setScalable(true);
                         } else {
                             graph.addSeries(dots);

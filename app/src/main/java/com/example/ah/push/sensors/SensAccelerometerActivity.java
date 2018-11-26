@@ -30,14 +30,17 @@ import java.util.concurrent.Executors;
 
 public class SensAccelerometerActivity extends AppCompatActivity implements SensorEventListener {
 
-    private static String connString = "HostName=AHHub.azure-devices.net;DeviceId=MKR1000;SharedAccessKey=5k+d+VFq3QMNwHQXAgoqKHqaynz9x8NNqEy1E1PUrbw=";
+    private static String connString = "HostName=AHHub.azure-devices.net;DeviceId=Redmi;SharedAccessKey=7yhVXWIo8yh2Fu536WI2cfSpKqMnwusmA8PlDNHKuM8=";
     private static IotHubClientProtocol protocol = IotHubClientProtocol.MQTT;
     private static DeviceClient client;
-    private static String deviceName = "MKR1000";
+    private static String deviceName = "Redmi";
 
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
+    float [] sensorValues;
+
+    int samplingPeriod = 1000;
 
     boolean sending = false;
 
@@ -58,8 +61,6 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
     SensorManager sensorManager;
     Sensor mSensor;
 
-    int samplingPeriod = 1000;
-
     Handler handler = new Handler();
 
     private Runnable appendData = new Runnable() {
@@ -70,10 +71,19 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
             seriesY.appendData(new DataPoint(time, y), true, 1000);
             seriesZ.appendData(new DataPoint(time, z), true, 1000);
 
+            handler.postDelayed(this, 50);
+        }
+    };
+
+
+    private Runnable sendData = new Runnable() {
+        @Override
+        public void run() {
+
             try{
                 client.open();
                 PhoneAzureDevice.MessageSender sender = new PhoneAzureDevice.MessageSender(client, "66", mSensor.getName());
-                sender.setValue(String.valueOf(x)+";"+String.valueOf(y)+";"+String.valueOf(z));
+                sender.setValue(sensorValues);
                 ExecutorService executor = Executors.newFixedThreadPool(1);
                 executor.execute(sender);
             }catch (IOException e){
@@ -106,17 +116,16 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
         graphX = (GraphView)findViewById(R.id.graphX);
         graphX.getViewport().setXAxisBoundsManual(true);
         graphX.getViewport().setMaxX(2000);
+        graphX.addSeries(seriesX);
 
         graphY = (GraphView)findViewById(R.id.graphY);
         graphY.getViewport().setXAxisBoundsManual(true);
         graphY.getViewport().setMaxX(2000);
+        graphY.addSeries(seriesY);
 
         graphZ = (GraphView)findViewById(R.id.graphZ);
         graphZ.getViewport().setXAxisBoundsManual(true);
         graphZ.getViewport().setMaxX(2000);
-
-        graphX.addSeries(seriesX);
-        graphY.addSeries(seriesY);
         graphZ.addSeries(seriesZ);
 
         Intent intent = getIntent();
@@ -131,23 +140,25 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
 
         Button startMeasureButton = (Button)findViewById(R.id.button_measure);
 
+        //Upadte graphs by asynch runnable
+        //handler.post(appendData);
+
         startMeasureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(sending == false){
                     samplingPeriod = Integer.parseInt(samplingFrequency.getText().toString());
-                    handler.post(appendData);
+                    handler.post(sendData);
                     startMeasureButton.setText("Stop");
                     sending = true;
                 }else {
-                    handler.removeCallbacks(appendData);
-                    startMeasureButton.setText("Start measure");
+                    handler.removeCallbacks(sendData);
+                    startMeasureButton.setText("Start");
                     try {
                         client.closeNow();
                     }catch (IOException e){
                         e.printStackTrace();
                     }
-
                     sending = false;
                 }
             }
@@ -169,6 +180,8 @@ public class SensAccelerometerActivity extends AppCompatActivity implements Sens
     @Override
     public void onSensorChanged(SensorEvent event){
         long time = SystemClock.currentThreadTimeMillis();
+
+        sensorValues = event.values;
 
         x = event.values[0];
         xView.setText(String.valueOf(event.values[0]));

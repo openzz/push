@@ -7,22 +7,43 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.ah.push.PhoneAzureDevice;
 import com.example.ah.push.R;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.microsoft.azure.sdk.iot.device.DeviceClient;
+import com.microsoft.azure.sdk.iot.device.IotHubClientProtocol;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SensLightActivity extends AppCompatActivity implements SensorEventListener {
 
-    private ArrayList<Float> x = new ArrayList<>();
+    private static String connString = "HostName=AHHub.azure-devices.net;DeviceId=Redmi;SharedAccessKey=7yhVXWIo8yh2Fu536WI2cfSpKqMnwusmA8PlDNHKuM8=";
+    private static IotHubClientProtocol protocol = IotHubClientProtocol.MQTT;
+    private static DeviceClient client;
+    private static String deviceName = "Redmi";
+
+    float x = 0.0f;
+    float [] sensorValues;
+
+    int samplingPeriod = 1000;
+
+    boolean sending = false;
 
     private TextView sensorText;
 
@@ -35,11 +56,47 @@ public class SensLightActivity extends AppCompatActivity implements SensorEventL
     SensorManager sensorManager;
     Sensor mSensor;
 
+    Handler handler = new Handler();
+
+    private Runnable appendData = new Runnable() {
+        @Override
+        public void run() {
+            long time = SystemClock.currentThreadTimeMillis();
+            seriesX.appendData(new DataPoint(time, x), true, 1000);;
+
+            handler.postDelayed(this, 50);
+        }
+    };
+
+
+    private Runnable sendData = new Runnable() {
+        @Override
+        public void run() {
+            try{
+                client.open();
+                PhoneAzureDevice.MessageSender sender = new PhoneAzureDevice.MessageSender(client, "66", mSensor.getName());
+                sender.setValue(sensorValues);
+                ExecutorService executor = Executors.newFixedThreadPool(1);
+                executor.execute(sender);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+            handler.postDelayed(this, samplingPeriod);
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lightsensor);
+
+        try {
+            client = new DeviceClient(connString, protocol);
+        }catch (URISyntaxException e){
+            e.printStackTrace();
+        }
 
         sensorText = (TextView)findViewById(R.id.sensorTextView);
 
@@ -47,7 +104,7 @@ public class SensLightActivity extends AppCompatActivity implements SensorEventL
 
         graphX = (GraphView)findViewById(R.id.graphX);
         graphX.getViewport().setXAxisBoundsManual(true);
-        graphX.getViewport().setMaxX(SystemClock.currentThreadTimeMillis());
+        graphX.getViewport().setMaxX(2000);
         graphX.addSeries(seriesX);
 
         Intent intent = getIntent();
@@ -58,16 +115,33 @@ public class SensLightActivity extends AppCompatActivity implements SensorEventL
 
         sensorText.setText(mSensor.getName());
 
-        x.add(0.0f);
+        EditText samplingFrequency = (EditText)findViewById(R.id.editText_frequency);
 
-        new Timer().scheduleAtFixedRate(new TimerTask() {
+        Button startMeasureButton = (Button)findViewById(R.id.button_measure);
+
+        //Upadte graphs by asynch runnable
+        //handler.post(appendData);
+
+        startMeasureButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                long time = SystemClock.currentThreadTimeMillis();
-
-                seriesX.appendData(new DataPoint(time, x.get(x.size()-1)), true, 1000);
+            public void onClick(View v) {
+                if(sending == false){
+                    samplingPeriod = Integer.parseInt(samplingFrequency.getText().toString());
+                    handler.post(sendData);
+                    startMeasureButton.setText("Stop");
+                    sending = true;
+                }else {
+                    handler.removeCallbacks(sendData);
+                    startMeasureButton.setText("Start");
+                    try {
+                        client.closeNow();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                    sending = false;
+                }
             }
-        }, 0, 10);
+        });
     }
 
     @Override
@@ -84,8 +158,12 @@ public class SensLightActivity extends AppCompatActivity implements SensorEventL
     @Override
     public void onSensorChanged(SensorEvent event){
 
-        x.add(event.values[0]);
-        //seriesX.appendData(new DataPoint(time, event.values[0]), true, 100);
+        long time = SystemClock.currentThreadTimeMillis();
+
+        sensorValues = event.values;
+
+        x = event.values[0];
         xView.setText(String.valueOf(event.values[0]));
+        seriesX.appendData(new DataPoint(time, x), true, 1000);
     }
 }

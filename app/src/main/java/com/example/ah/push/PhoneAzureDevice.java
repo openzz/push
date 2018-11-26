@@ -96,7 +96,7 @@ public class PhoneAzureDevice {
     public static class MessageSender implements Runnable {
         String boardId;
         String sensorId;
-        String value;
+        float [] value;
         DeviceClient client;
 
         public MessageSender(DeviceClient client, String boardId, String sensorId){
@@ -105,11 +105,11 @@ public class PhoneAzureDevice {
             this.sensorId = sensorId;
         }
 
-        public void setValue(String value) {
-            this.value = value;
+        public void setValue(float [] values) {
+            this.value = values;
         }
 
-        public String getValue() {
+        public float [] getValue() {
             return value;
         }
 
@@ -129,11 +129,13 @@ public class PhoneAzureDevice {
 
                 Board board = new Board();
                 board.boardid = boardId;
-                board.sensors = new Sensor[1];
+                board.sensors = new Sensor[value.length];
 
-                board.sensors[0] = new Sensor();
-                board.sensors[0].sensorid = sensorId;
-                board.sensors[0].value = value;
+                for(int i = 0; i<value.length; i++){
+                    board.sensors[i] = new Sensor();
+                    board.sensors[i].sensorid = sensorId+" "+i;
+                    board.sensors[i].value = String.valueOf(value[i]);
+                }
 
                 Mes mes = new Mes();
                 mes.systemProperties = new SystemProp(time);

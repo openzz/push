@@ -19,7 +19,6 @@ import com.example.ah.push.sensors.SensMagnetometerActivity;
 import com.example.ah.push.sensors.SensOrientationActivity;
 import com.example.ah.push.sensors.SensProximityActivity;
 import com.example.ah.push.sensors.SensRotationVectorActivity;
-import com.example.ah.push.sensors.SensSignificantMotionActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +80,6 @@ public class SensorsActivity extends AppCompatActivity {
                     case "MAGNETOMETER":
                         intent = new Intent(SensorsActivity.this, SensMagnetometerActivity.class);
                         intent.putExtra("sensorType", Sensor.TYPE_MAGNETIC_FIELD);
-                        break;
-                    case "SIGNIFICANT_MOTION":
-                        intent = new Intent(SensorsActivity.this, SensSignificantMotionActivity.class);
-                        intent.putExtra("sensorType", Sensor.TYPE_SIGNIFICANT_MOTION);
                         break;
                     case "BMI160 Rotation Vector Sensor":
                         intent = new Intent(SensorsActivity.this, SensRotationVectorActivity.class);
