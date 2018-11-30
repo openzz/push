@@ -5,38 +5,79 @@
     android:layout_height="match_parent"
     >
 
+    <TextView
+        android:id="@+id/textView_connStrVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_connStr"
+        android:layout_alignStart="@+id/textView_connStr"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="12dp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/textView_deviceNameVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textView_deviceName"
+        android:layout_marginStart="37dp"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@+id/textView_deviceName"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/textView_tableNameVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView_deviceNameVal"
+        android:layout_alignTop="@+id/textView_tableName"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="0dp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/textView_connStr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_tableName"
+        android:layout_alignStart="@+id/textView_deviceName"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="16dp"
+        android:text="IoT hub connection string:" />
+
+    <TextView
+        android:id="@+id/textView_tableName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_deviceName"
+        android:layout_alignStart="@+id/textView_deviceName"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="16dp"
+        android:text="Table name:" />
+
     <Button
         android:id="@+id/read_barcode"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="31dp"
+        android:layout_above="@+id/buttonOk"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="10dp"
         android:onClick="onClick"
         android:text="Scan a QR"
         android:textAlignment="center" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/input"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp"
-        android:text="or"
-        android:textSize="18sp" />
-
     <EditText
         android:id="@+id/input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="220dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:ems="10"
         android:gravity="top|left"
         android:hint="Paste connection string here"
         android:inputType="textMultiLine"
-        android:lines="4"
+        android:lines="8"
         android:maxLines="8"
         android:minLines="6" />
 
@@ -49,5 +90,14 @@
         android:onClick="onClick"
         android:text="Add to list"
         android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/textView_deviceName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="14dp"
+        android:text="Device name:" />
 
 </RelativeLayout>

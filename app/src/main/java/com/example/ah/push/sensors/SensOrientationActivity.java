@@ -85,7 +85,7 @@ public class SensOrientationActivity extends AppCompatActivity implements Sensor
 
             try{
                 client.open();
-                PhoneAzureDevice.MessageSender sender = new PhoneAzureDevice.MessageSender(client, "66", mSensor.getName());
+                PhoneAzureDevice.MessageSender sender = new PhoneAzureDevice.MessageSender(client, deviceName, mSensor.getName());
                 sender.setValue(sensorValues);
                 ExecutorService executor = Executors.newFixedThreadPool(1);
                 executor.execute(sender);

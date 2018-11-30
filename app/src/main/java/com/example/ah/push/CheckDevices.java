@@ -21,8 +21,6 @@ import java.util.ArrayList;
 public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String>> {
 
     public ArrayList<String> onlineDevices = new ArrayList<>();
-    DeviceTwin twinClient;
-    Query twinQuery;
 
     @Override
     protected ArrayList<String> doInBackground(DeviceObject... devices) {
@@ -32,11 +30,11 @@ public class CheckDevices extends AsyncTask<DeviceObject, Void, ArrayList<String
 
         System.out.println("Hello");
         try {
-            twinClient = DeviceTwin.createFromConnectionString(devices[0].getIotHubConnectionString());
-            DeviceTwinDevice device = new DeviceTwinDevice(devices[0].getDeviceName());
+            DeviceTwin twinClient = DeviceTwin.createFromConnectionString(devices[0].getIotHubConnectionString());
+            //DeviceTwinDevice device = new DeviceTwinDevice(devices[0].getDeviceName());
 
             SqlQuery myQuery = SqlQuery.createSqlQuery("*", SqlQuery.FromType.DEVICES, "connectionState='Connected'", null);
-            twinQuery = twinClient.queryTwin(myQuery.getQuery(), 500);
+            Query twinQuery = twinClient.queryTwin(myQuery.getQuery(), 100);
 
             while (twinClient.hasNextDeviceTwin(twinQuery)) {
                 DeviceTwinDevice d = twinClient.getNextDeviceTwin(twinQuery);

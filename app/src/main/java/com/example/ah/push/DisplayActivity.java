@@ -196,7 +196,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                v.getParent().requestDisallowInterceptTouchEvent(true);
+                v.getParent().requestDisallowInterceptTouchEvent(false);
                 return false;
             }
         });
@@ -215,7 +215,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
 
         TextView device = (TextView)findViewById(R.id.device);
-        device.setText(parcelDevice.getNotificationHubName());
+        device.setText(parcelDevice.getDeviceName());
                 //deviceInfo.get("NotificationHubName"));
     }
 
@@ -233,10 +233,12 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
             case R.id.buttonApply:{
                 FetchTable fetchTask = new FetchTable();
-
+                fetchedData = null;
+                graph.removeAllSeries();
+                checkListItems = null;
                 try {
-                    fetchedData = null;
-                    graph.removeAllSeries();
+
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -406,7 +408,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                         checkListItems = new ArrayList<>();
 
                         for (IncomingMessage.Board.Sensor sensor : msg.body.sensors) {
-                            int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
+                            int col = Color.rgb(rand.nextInt(75)+180, rand.nextInt(75)+180, rand.nextInt(75)+180);
                             checkListItems.add(new DataModelSens(sensor.sensorid, sensor.value, col));
                         }
 
@@ -431,7 +433,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
 
                 try {
                     checkListItems = new ArrayList<>();
-                    checkListItems1 = new ArrayList<>();
+                    //checkListItems1 = new ArrayList<>();
                     Random rand = new Random();
 
                     if (sensors.size() == 0){
@@ -443,7 +445,7 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                             if (!checkListItems.contains(entry.getKey())) {
                                 int col = Color.rgb(rand.nextInt(180), rand.nextInt(180), rand.nextInt(180));
                                 checkListItems.add(new DataModelSens(entry.getKey(), null, col));
-                                checkListItems1.add(entry.getKey());
+                                //checkListItems1.add(entry.getKey());
                                 //entry.getKey().toString());
                             }
                         }
@@ -461,34 +463,58 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                        SparseBooleanArray sp = listView.getCheckedItemPositions();
+                        SparseBooleanArray selectedPositions = listView.getCheckedItemPositions();
 
                         ArrayList<String> selectedItems = new ArrayList<String>();
 
                         for (int i = 0; i < checkListItems.size(); i++) {
-                            if (sp.get(i)) {
+                            if (selectedPositions.get(i)) {
                                 selectedItems.add(checkListItems.get(i).getSensor());
                             }
+                        }
+
+                        if (selectedPositions.get(position)) {
+                            view.setBackgroundColor(checkListItems.get(position).color);
+                        }else{
+                            view.setBackgroundColor(Color.WHITE);
                         }
 
 
                         DataPoint[][] series = new DataPoint[selectedItems.size()][];
                         graph.removeAllSeries();
 
+                        double yMin = 0.0;
+                        double yMax = 0.0;
+
                         int k = 0;
                         for (Map.Entry<String, HashMap<String, String>> entry : fetchedData.entrySet()) {
+
+
                             if(selectedItems.contains(entry.getKey())) {
+
                                 //series[i] = mapToDp(entry.getValue());
                                 DataPoint[] x = mapToDp(entry.getValue());
-                                int color = checkListItems.get(k).getColor();
 
+                                for (DataPoint dp: x) {
+                                    if (dp.getY()>yMax){
+                                        yMax = dp.getY();
+                                    }
+                                    if (dp.getY()<yMin){
+                                        yMin = dp.getY();
+                                    }
+                                }
+
+                                graph.getViewport().setYAxisBoundsManual(true);
+                                graph.getViewport().setMaxY(yMax);
+                                graph.getViewport().setMinY(yMin);
+                                int color = checkListItems.get(k).getColor();
 
                                 LineGraphSeries<DataPoint> spline = new LineGraphSeries<>(x);
                                 PointsGraphSeries<DataPoint> dots = new PointsGraphSeries<>(x);
+                                dots.setSize(8f);
 
                                 spline.setColor(color);
                                 dots.setColor(color);
-
 
                                 if (x.length > 1) {
                                     graph.addSeries(spline);
@@ -496,7 +522,12 @@ public class DisplayActivity extends AppCompatActivity implements View.OnClickLi
                                     dots.setShape(PointsGraphSeries.Shape.POINT);
                                     graph.getViewport().setXAxisBoundsManual(true);
                                     graph.getViewport().setMaxX(x[x.length - 1].getX());
-                                    graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
+                                    if (x.length > 2){
+                                        graph.getViewport().setMinX(x[(x.length-1) - x.length/3].getX());
+                                    }
+                                    if(x.length == 2){
+                                        graph.getViewport().setMinX(x[0].getX());
+                                    }
                                     graph.getViewport().setScalable(true);
                                 } else {
                                     graph.addSeries(dots);

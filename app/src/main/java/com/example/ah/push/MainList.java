@@ -54,8 +54,8 @@ public class MainList extends ListFragment implements OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        //checkDevicesConnection(devices);
         updateListFromFirebase(mDatabaseRef);
+        //checkDevicesConnection(devices);
         }
 
     @Override
@@ -100,8 +100,8 @@ public class MainList extends ListFragment implements OnClickListener {
         }catch (Exception e){
             System.out.println("No incoming connection data.");
         }
-        //checkDevicesConnection(devices);
         updateListFromFirebase(mDatabaseRef);
+        //checkDevicesConnection(devices);
     }
 
     //TODO
@@ -141,7 +141,6 @@ public class MainList extends ListFragment implements OnClickListener {
                             tempInfo.get("StorageConnectionString"), tempInfo.get("IotHubConnectionString"), tempInfo.get("DeviceName"), el));
                 }
                 Log.d("AH-TAG", "WOOHOO");
-                //checkDevicesConnection(devices);
                 showList(devices);
             }
 
@@ -152,37 +151,16 @@ public class MainList extends ListFragment implements OnClickListener {
         });
     }
 
-    public void getDevices(DatabaseReference dbRef){
-
-        ArrayList<String> my_list = new ArrayList<>();
-
-        dbRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String connStr = ds.getKey();
-                    my_list.add(connStr);
-                    Log.d("TAG", connStr);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     public void checkDevicesConnection(ArrayList<DeviceObject> deviceList){
-        for(DeviceObject dev: deviceList){
+        //for(DeviceObject dev: deviceList){
             try{
                 CheckDevices checkDevices = new CheckDevices();
-                checkDevices.execute(dev);
+                checkDevices.execute(deviceList.get(1));
                 onlineDevices = checkDevices.get();
             }catch(Exception e){
                 e.printStackTrace();
             }
-        }
+        //}
         for (DeviceObject device: deviceList){
             if(onlineDevices.contains(device.DeviceName)){  //TODO bad parser
                 device.setIsOnline(true);

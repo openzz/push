@@ -101,14 +101,15 @@
         <ListView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_below="@+id/lastUpdate"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="false"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="0dp"
-            android:choiceMode="multipleChoice" />
+            android:choiceMode="multipleChoice"
+            android:overScrollMode="never"/>
 
         <Button
             android:id="@+id/measureButton"

@@ -33,8 +33,8 @@ public class MyIndicatorAdapter extends ArrayAdapter<MyMainListItem>{
 
         MyMainListItem currentDevice = deviceList.get(position);
 
-        ImageView image = (ImageView)listItem.findViewById(R.id.imageView_poster);
-        image.setImageResource(currentDevice.getmImageDrawable());
+        //ImageView image = (ImageView)listItem.findViewById(R.id.imageView_poster);
+        //image.setImageResource(currentDevice.getmImageDrawable());
 
         TextView name = (TextView) listItem.findViewById(R.id.textView_name);
         name.setText(currentDevice.getmName());
